@@ -1,0 +1,1150 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>GeoAI Demo</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+        />
+        <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+        <style>
+            body {
+                display: flex;
+                margin: 0;
+                padding: 0;
+                height: 100vh;
+            }
+            .left-panel {
+                width: 25%;
+                padding: 1rem;
+                overflow-y: auto;
+            }
+            .center-panel {
+                width: 50%;
+                background-color: #e0e0e0;
+                padding: 1rem;
+            }
+            .right-panel {
+                width: 25%;
+                padding: 1rem;
+                overflow-y: auto;
+            }
+            textarea[name="filters"] {
+                font-family: monospace;
+                font-size: small;
+            }
+            #intent-description {
+                font-size: small;
+                color: #666;
+                margin-bottom: 1rem;
+            }
+            #sections-container {
+                font-size: small;
+            }
+            .outdated {
+                opacity: 0.5;
+                font-style: italic;
+            }
+            .spinner {
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #3498db;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin: 2rem auto;
+            }
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+            .tabs {
+                display: flex;
+                border-bottom: 2px solid #ccc;
+                margin-bottom: 1rem;
+                position: relative;
+            }
+            .tabs .spinner {
+                position: absolute;
+                right: 10px;
+                top: 5px;
+                width: 24px;
+                height: 24px;
+                border-width: 3px;
+                margin: 0;
+            }
+            .tab {
+                padding: 0.5rem 1rem;
+                cursor: pointer;
+                background-color: #f0f0f0;
+                border: none;
+                margin-right: 0.25rem;
+                color: #333;
+            }
+            .tab.active {
+                background-color: white;
+                border-bottom: 2px solid white;
+                margin-bottom: -2px;
+                color: #000;
+            }
+            .tab-content {
+                display: none;
+            }
+            .tab-content.active {
+                display: block;
+                overflow-y: auto;
+                max-height: calc(100vh - 8rem);
+                font-size: 0.75rem;
+            }
+        </style>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    </head>
+    <body>
+        <div class="left-panel">
+            <details id="init-accordion" open>
+                <summary>INITIALIZE</summary>
+                <label>
+                    Filters
+                    <textarea name="filters" rows="15">
+[
+  {
+    "attr": "wh_play.keyword",
+    "oper": "filter",
+    "type": "terms",
+    "value": ["Duvernay"],
+    "data_type": "well_header"
+  },
+  {
+    "attr": "data_type.keyword",
+    "oper": "filter",
+    "type": "term",
+    "value": "completion",
+    "data_type": "completion"
+  },
+  {
+    "attr": "geometry",
+    "data_type": "well_header",
+    "oper": "filter",
+    "type": "geojson",
+    "value": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [-13140772.21016681, 7339248.020270397],
+                [-12879217.153204478, 7335421.5069953],
+                [-12876902.993126694, 7210061.963256612],
+                [-13121192.54699089, 7198675.887117638],
+                [-13140772.21016681, 7339248.020270397]
+              ]
+            ]
+          },
+          "properties": {
+            "text": "",
+            "textStrokeColor": "rgba(0,0,0,1)",
+            "textFillColor": "#000000",
+            "textStrokeWidth": 0.4,
+            "textScale": 7,
+            "textScaleOption": "true",
+            "featureFillColor": "rgba(255,0,0,0.5)",
+            "featureStrokeColor": "rgba(0,0,0,1)",
+            "featurePointType": "default",
+            "featureStrokeWidth": 0.4,
+            "featureStrokeLineDash": "false",
+            "featName": "Polygon2",
+            "featureGeometryType": "Polygon",
+            "attributes_config": {},
+            "aoi": true,
+            "featurePointSize": 5,
+            "featureRadius": 0,
+            "featureId": 2
+          },
+          "id": 2
+        }
+      ],
+      "projection": "3857"
+    }
+  }
+]</textarea
+                    >
+                </label>
+
+                <form id="analysis-form">
+                    <label>
+                        Intent
+                        <select name="intent" id="intent-select">
+                            <option value="">Loading...</option>
+                        </select>
+                    </label>
+                    <div id="intent-description"></div>
+                    <div id="sections-container"></div>
+
+                    <div>
+                        <label>Additional Context</label>
+                        <small>
+                            Provide specific focus or constraints for the
+                            analysis.<br />
+                            Examples:
+                            <ul style="margin: 0.5rem 0; padding-left: 1.5rem">
+                                <li>Focus on non-Canadian operators</li>
+                                <li>Compare wells before and after 2020</li>
+                                <li>
+                                    Ignore wells with less than 12 months
+                                    production
+                                </li>
+                            </ul>
+                        </small>
+                        <textarea
+                            name="additional_context"
+                            rows="3"
+                            placeholder="additional context"
+                        ></textarea>
+                    </div>
+
+                    <input type="hidden" name="async_mode" value="true" />
+                    <input
+                        type="hidden"
+                        name="return_data_type"
+                        value="well_header"
+                    />
+                    <input
+                        type="hidden"
+                        name="include_documents"
+                        value="false"
+                    />
+
+                    <button type="submit">Send to AI</button>
+                </form>
+            </details>
+
+            <details id="focus-accordion">
+                <summary>FOCUS</summary>
+                <div id="focus-content">
+                    <p>
+                        Focus options will appear here after initial analysis
+                        completes.
+                    </p>
+                </div>
+            </details>
+
+            <details id="analyze-accordion">
+                <summary>ANALYZE</summary>
+                <div id="analyze-content">
+                    <p>Analysis options will appear here.</p>
+                </div>
+            </details>
+        </div>
+        <div class="center-panel">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('geostat')">
+                    GEOSTAT
+                </button>
+                <button class="tab" onclick="switchTab('report')">
+                    REPORT
+                </button>
+            </div>
+            <div id="geostat-tab" class="tab-content active">
+                <p>Geostat analysis will appear here...</p>
+            </div>
+            <div id="report-tab" class="tab-content">
+                <p>Report will appear here...</p>
+            </div>
+        </div>
+        <div class="right-panel">
+            <details id="logging-accordion" open>
+                <summary>LOGGING</summary>
+                <textarea
+                    id="log-output"
+                    readonly
+                    rows="30"
+                    style="
+                        font-family: monospace;
+                        font-size: small;
+                        width: 100%;
+                        resize: vertical;
+                    "
+                ></textarea>
+            </details>
+
+            <details id="profile-accordion">
+                <summary>PROFILE</summary>
+                <textarea
+                    id="profile-output"
+                    readonly
+                    rows="30"
+                    style="
+                        font-family: monospace;
+                        font-size: small;
+                        width: 100%;
+                        resize: vertical;
+                    "
+                ></textarea>
+            </details>
+        </div>
+
+        <dialog id="confirm-modal">
+            <article>
+                <header>
+                    <h3>Confirm Submission</h3>
+                </header>
+                <pre
+                    id="json-preview"
+                    style="
+                        font-size: small;
+                        max-height: 400px;
+                        overflow-y: auto;
+                    "
+                ></pre>
+                <footer>
+                    <button id="cancel-btn" class="secondary">Cancel</button>
+                    <button id="send-btn">Send</button>
+                </footer>
+            </article>
+        </dialog>
+
+        <script>
+            let intentsData = [];
+            let currentTaskId = null;
+            const API_URL =
+                "https://dev.geologic.com/api/functions/gemini_api/v3";
+
+            // Tab switching
+            function switchTab(tabName) {
+                const tabs = document.querySelectorAll(".tab");
+                const contents = document.querySelectorAll(".tab-content");
+
+                tabs.forEach((tab) => tab.classList.remove("active"));
+                contents.forEach((content) =>
+                    content.classList.remove("active"),
+                );
+
+                // Find the tab button for this tabName and make it active
+                tabs.forEach((tab) => {
+                    if (
+                        tab.textContent.trim().toLowerCase() ===
+                        tabName.toLowerCase()
+                    ) {
+                        tab.classList.add("active");
+                    }
+                });
+                document
+                    .getElementById(tabName + "-tab")
+                    .classList.add("active");
+            }
+
+            // Load intents on page load
+            fetch("/api/intents")
+                .then((response) => response.json())
+                .then((data) => {
+                    intentsData = data;
+                    const select = document.getElementById("intent-select");
+                    select.innerHTML = "";
+
+                    data.forEach((intent, index) => {
+                        const option = document.createElement("option");
+                        option.value = intent.name;
+                        option.textContent = intent.name
+                            .replace(/_/g, " ")
+                            .replace(/\b\w/g, (l) => l.toUpperCase());
+                        select.appendChild(option);
+                    });
+
+                    // Trigger change to load first intent
+                    if (data.length > 0) {
+                        select.dispatchEvent(new Event("change"));
+                    }
+                });
+
+            // Handle intent selection change
+            document
+                .getElementById("intent-select")
+                .addEventListener("change", function (e) {
+                    const selectedIntent = intentsData.find(
+                        (i) => i.name === e.target.value,
+                    );
+                    if (!selectedIntent) return;
+
+                    // Update description
+                    document.getElementById("intent-description").textContent =
+                        selectedIntent.description;
+
+                    // Update sections checkboxes
+                    const sectionsContainer =
+                        document.getElementById("sections-container");
+                    sectionsContainer.innerHTML =
+                        "<fieldset><legend>Sections to Include</legend></fieldset>";
+                    const fieldset =
+                        sectionsContainer.querySelector("fieldset");
+
+                    selectedIntent.sections.forEach((section) => {
+                        const label = document.createElement("label");
+                        const checkbox = document.createElement("input");
+                        checkbox.type = "checkbox";
+                        checkbox.name = "section";
+                        checkbox.value = section;
+                        checkbox.checked = true;
+
+                        const displayName = section
+                            .replace(/_/g, " ")
+                            .replace(/\b\w/g, (l) => l.toUpperCase());
+
+                        label.appendChild(checkbox);
+                        label.appendChild(
+                            document.createTextNode(" " + displayName),
+                        );
+                        fieldset.appendChild(label);
+                    });
+                });
+
+            // Handle form submission
+            document
+                .getElementById("analysis-form")
+                .addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(e.target);
+
+                    // Build JSON payload
+                    const payload = {
+                        filters: JSON.parse(
+                            document.querySelector('textarea[name="filters"]')
+                                .value,
+                        ),
+                        intent: formData.get("intent"),
+                        intent_overrides: {
+                            sections: {
+                                include: formData.getAll("section"),
+                            },
+                        },
+                        additional_context: formData.get("additional_context"),
+                        async_mode: formData.get("async_mode") === "true",
+                        return_data_type: formData.get("return_data_type"),
+                    };
+
+                    // Log payload to console
+                    console.log("Sending payload:", payload);
+
+                    // Reset polling state and show spinner
+                    lastLogCount = 0;
+                    document.getElementById("log-output").value = "";
+                    document.getElementById("geostat-tab").innerHTML =
+                        '<div class="spinner"></div><p style="text-align: center;">Waiting for analysis...</p>';
+
+                    // Submit directly
+                    sendInitialRequest(payload);
+                });
+
+            // Polling state
+            let pollingInterval = null;
+            let lastLogCount = 0;
+
+            function sendInitialRequest(payload) {
+                // POST to API
+                fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.task_id) {
+                            // Start polling for status (don't close INIT yet)
+                            startPolling(data.task_id);
+                        } else {
+                            // Display response in center panel
+                            document.querySelector(".center-panel").innerHTML =
+                                '<h2>API Response</h2><pre style="font-size: small; white-space: pre-wrap;">' +
+                                JSON.stringify(data, null, 2) +
+                                "</pre>";
+                        }
+                    })
+                    .catch((error) => {
+                        appendLog("ERROR: " + error.message);
+                    });
+            }
+
+            function appendLog(message, timestamp) {
+                const logOutput = document.getElementById("log-output");
+                if (!timestamp) {
+                    timestamp = new Date().toLocaleTimeString("en-US", {
+                        hour12: false,
+                    });
+                }
+                logOutput.value += `[${timestamp}] ${message}\n`;
+                logOutput.scrollTop = logOutput.scrollHeight;
+            }
+
+            function startPolling(taskId) {
+                currentTaskId = taskId;
+                appendLog("Task started: " + taskId);
+
+                // Clear any existing interval
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                }
+
+                // Poll every 3 seconds
+                pollingInterval = setInterval(() => {
+                    fetch(`${API_URL}/status/${taskId}`)
+                        .then((response) => response.json())
+                        .then((response) => {
+                            console.log("Poll response:", response);
+                            const data = response.data || response;
+                            const logs = data.logs || [];
+
+                            // Append only new log messages
+                            for (let i = lastLogCount; i < logs.length; i++) {
+                                const log = logs[i];
+                                let timestamp;
+                                if (log.timestamp) {
+                                    timestamp = new Date(
+                                        log.timestamp,
+                                    ).toLocaleTimeString("en-US", {
+                                        hour12: false,
+                                    });
+                                } else {
+                                    timestamp = new Date().toLocaleTimeString(
+                                        "en-US",
+                                        {
+                                            hour12: false,
+                                        },
+                                    );
+                                }
+                                appendLog(log.message, timestamp);
+                            }
+                            lastLogCount = logs.length;
+
+                            // Check for focus checkpoint with geostat_analysis
+                            const latestMessage =
+                                logs.length > 0
+                                    ? logs[logs.length - 1].message
+                                    : "";
+                            // Display geostat_analysis if available
+                            if (data.geostat_analysis) {
+                                const geostatTab =
+                                    document.getElementById("geostat-tab");
+                                const title =
+                                    data.status === "awaiting_focus"
+                                        ? "<h2>Focus Summary</h2>"
+                                        : "<h2>Geostat Analysis</h2>";
+                                geostatTab.innerHTML =
+                                    '<div style="padding: 1rem;">' +
+                                    title +
+                                    marked.parse(data.geostat_analysis) +
+                                    "</div>";
+
+                                // Remove outdated class and spinner if they exist (new content arrived)
+                                geostatTab
+                                    .querySelector("div")
+                                    .classList.remove("outdated");
+                                const tabsContainer =
+                                    document.querySelector(".tabs");
+                                const spinner =
+                                    tabsContainer.querySelector(".spinner");
+                                if (spinner) spinner.remove();
+                            }
+
+                            if (
+                                latestMessage === "Focus checkpoint reached" &&
+                                data.status === "awaiting_focus"
+                            ) {
+                                // Stop polling
+                                clearInterval(pollingInterval);
+                                pollingInterval = null;
+
+                                appendLog("Focus checkpoint reached");
+
+                                // Close INIT accordion, open FOCUS accordion
+                                document.getElementById("init-accordion").open =
+                                    false;
+                                document.getElementById(
+                                    "focus-accordion",
+                                ).open = true;
+
+                                // Populate FOCUS accordion
+                                populateFocusForm(data);
+                            }
+
+                            // Check if task is complete (terminal states)
+                            const status = data.status;
+                            if (
+                                status === "completed" ||
+                                status === "awaiting_selection"
+                            ) {
+                                clearInterval(pollingInterval);
+                                pollingInterval = null;
+                                appendLog(
+                                    "Analysis complete - status: " + status,
+                                );
+                                console.log("Final status object:", data);
+
+                                // Handle synthesis completion
+                                handleSynthesisComplete(data);
+                            } else if (
+                                status === "failed" ||
+                                status === "no_data"
+                            ) {
+                                clearInterval(pollingInterval);
+                                pollingInterval = null;
+                                appendLog(
+                                    "Task finished with status: " + status,
+                                );
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Polling error:", error);
+                            clearInterval(pollingInterval);
+                            pollingInterval = null;
+                            appendLog("Polling failed: " + error.message);
+                        });
+                }, 3000);
+            }
+
+            function populateFocusForm(data) {
+                const focusContent = document.getElementById("focus-content");
+
+                //let html = "<h4>Focus Options</h4>";
+                let html = "";
+
+                // Focus history
+                if (data.focus_history && data.focus_history.length > 0) {
+                    html += "<h5>Focus History</h5><ul>";
+                    data.focus_history.forEach((item) => {
+                        const prompt = item.prompt || item.focus_prompt || item;
+                        const desc = item.description || "";
+                        const impact = item.estimated_impact || "";
+                        let summary = `Round ${item.round || ""}: "${prompt}"`;
+                        if (desc) summary += ` - ${desc}`;
+                        if (impact) summary += ` (${impact})`;
+                        html += `<li>${summary}</li>`;
+                    });
+                    html += "</ul>";
+                }
+
+                // Examples
+                if (data.focus_examples && data.focus_examples.length > 0) {
+                    html += "<h5>Optional Focus Prompts</h5><ul>";
+                    data.focus_examples.forEach((example) => {
+                        html += `<li>${example}</li>`;
+                    });
+                    html += "</ul>";
+                }
+
+                // Focus form
+                html += `
+                    <label>
+                        <textarea id="focus-prompt" name="focus" rows="3" placeholder="filter prompt..."></textarea>
+                    </label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button id="focus-btn" class="secondary" disabled onclick="submitFocus()">Apply Focus</button>
+                        <span style="color: #666; font-size: small;">or</span>
+                        <button id="continue-btn" onclick="submitContinue()">Continue to Analysis</button>
+                    </div>
+                `;
+
+                focusContent.innerHTML = html;
+
+                // Enable/disable Focus button based on text input
+                document
+                    .getElementById("focus-prompt")
+                    .addEventListener("input", function (e) {
+                        const focusBtn = document.getElementById("focus-btn");
+                        focusBtn.disabled = e.target.value.trim() === "";
+                    });
+            }
+
+            function submitFocus() {
+                const focusPrompt = document
+                    .getElementById("focus-prompt")
+                    .value.trim();
+                if (!focusPrompt) return;
+
+                appendLog("Applying focus: " + focusPrompt);
+
+                // Mark GEOSTAT tab as outdated and add spinner
+                const geostatTab = document.getElementById("geostat-tab");
+                const geostatDiv = geostatTab.querySelector("div");
+                geostatDiv.classList.add("outdated");
+
+                // Add spinner to tabs container
+                const tabsContainer = document.querySelector(".tabs");
+                if (!tabsContainer.querySelector(".spinner")) {
+                    const spinner = document.createElement("div");
+                    spinner.className = "spinner";
+                    spinner.id = "tab-spinner";
+                    tabsContainer.appendChild(spinner);
+                }
+
+                const payload = {
+                    task_id: currentTaskId,
+                    action: "focus",
+                    focus_prompt: focusPrompt,
+                    async_mode: true,
+                };
+
+                // Reset polling state
+                lastLogCount = 0;
+
+                // POST focus
+                fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.task_id) {
+                            // Start polling again
+                            startPolling(data.task_id);
+                        } else {
+                            appendLog("Error: No task_id returned");
+                        }
+                    })
+                    .catch((error) => {
+                        appendLog("ERROR: " + error.message);
+                    });
+            }
+
+            function submitContinue() {
+                appendLog("Continuing to synthesis");
+
+                // Mark GEOSTAT tab as outdated and add spinner
+                const geostatTab = document.getElementById("geostat-tab");
+                const geostatDiv = geostatTab.querySelector("div");
+                geostatDiv.classList.add("outdated");
+
+                // Add spinner to tabs container
+                const tabsContainer = document.querySelector(".tabs");
+                if (!tabsContainer.querySelector(".spinner")) {
+                    const spinner = document.createElement("div");
+                    spinner.className = "spinner";
+                    spinner.id = "tab-spinner";
+                    tabsContainer.appendChild(spinner);
+                }
+
+                const payload = {
+                    task_id: currentTaskId,
+                    action: "continue",
+                    async_mode: true,
+                };
+
+                // Reset polling state
+                lastLogCount = 0;
+
+                // POST continue
+                fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.task_id) {
+                            // Start polling again
+                            startPolling(data.task_id);
+                        } else {
+                            appendLog("Error: No task_id returned");
+                        }
+                    })
+                    .catch((error) => {
+                        appendLog("ERROR: " + error.message);
+                    });
+            }
+
+            function handleSynthesisComplete(data) {
+                // Close FOCUS accordion, open ANALYZE accordion
+                document.getElementById("focus-accordion").open = false;
+                document.getElementById("analyze-accordion").open = true;
+
+                // Collapse LOGGING accordion
+                document.getElementById("logging-accordion").open = false;
+
+                // Populate PROFILE accordion
+                const report = data.report || {};
+                const profileStats = report.sections?.profile_stats || {};
+                document.getElementById("profile-output").value =
+                    JSON.stringify(profileStats, null, 2);
+
+                // Update GEOSTAT tab with full geostat_summary
+                const geostatSummary = report.sections?.geostat_summary || "";
+                const geostatTab = document.getElementById("geostat-tab");
+                geostatTab.innerHTML =
+                    '<div style="padding: 1rem;">' +
+                    "<h2>Geostat Analysis</h2>" +
+                    marked.parse(geostatSummary) +
+                    "</div>";
+
+                // Remove outdated class and spinner if they exist (new content arrived)
+                geostatTab.querySelector("div").classList.remove("outdated");
+                const tabsContainer2 = document.querySelector(".tabs");
+                const spinner2 = tabsContainer2.querySelector(".spinner");
+                if (spinner2) spinner2.remove();
+
+                // Update REPORT tab and switch to it
+                populateReportTab(data);
+                switchTab("report");
+
+                // Populate ANALYZE accordion
+                populateAnalyzeForm(data);
+            }
+
+            function populateReportTab(data) {
+                const report = data.report || {};
+                const reportTab = document.getElementById("report-tab");
+
+                let html = '<div style="padding: 1rem;">';
+
+                // Additional context
+                if (report.additional_context) {
+                    html += "<h3>Additional Context</h3>";
+                    html += "<p>" + report.additional_context + "</p>";
+                }
+
+                // Filters
+                if (report.filters && report.filters.length > 0) {
+                    html += "<h3>Filters</h3><ul>";
+                    report.filters.forEach((filter) => {
+                        html += "<li>" + filter + "</li>";
+                    });
+                    html += "</ul>";
+                }
+
+                // Main report markdown
+                if (report.markdown) {
+                    html += marked.parse(report.markdown);
+                }
+
+                // Timing
+                if (report.timing) {
+                    html +=
+                        "<h3>Timing</h3><pre>" +
+                        JSON.stringify(report.timing, null, 2) +
+                        "</pre>";
+                }
+
+                // Tokens
+                if (report.tokens) {
+                    html +=
+                        "<h3>Tokens</h3><pre>" +
+                        JSON.stringify(report.tokens, null, 2) +
+                        "</pre>";
+                }
+
+                html += "</div>";
+                reportTab.innerHTML = html;
+
+                // Remove outdated class and spinner if they exist (new content arrived)
+                const reportDiv = reportTab.querySelector("div");
+                if (reportDiv) {
+                    reportDiv.classList.remove("outdated");
+                }
+                const tabsContainer3 = document.querySelector(".tabs");
+                const spinner3 = tabsContainer3.querySelector(".spinner");
+                if (spinner3) spinner3.remove();
+            }
+
+            function populateAnalyzeForm(data) {
+                const analyzeContent =
+                    document.getElementById("analyze-content");
+                const deepDiveOptions = data.deep_dive_options || [];
+                const recommendedTopics = data.recommended_topics || [];
+
+                let html = "<h5>Deep-Dive Topics</h5>";
+                html +=
+                    '<p style="font-size: small;">Data availability: <span style="color: #22c55e; font-weight: bold;">●</span> &gt;80% &nbsp; <span style="color: #f59e0b; font-weight: bold;">●</span> 50-80% &nbsp; <span style="color: #ef4444; font-weight: bold;">●</span> 20-50%</p>';
+                html += "<hr>";
+
+                if (deepDiveOptions.length > 0) {
+                    deepDiveOptions.forEach((option, index) => {
+                        const availability = (
+                            option.availability || ""
+                        ).toUpperCase();
+                        const name = option.name || option.key || "";
+                        const description = option.description || "";
+
+                        // Map availability to color
+                        let color = "#999"; // default
+                        if (availability === "HIGH")
+                            color = "#22c55e"; // green
+                        else if (availability === "MEDIUM")
+                            color = "#f59e0b"; // orange
+                        else if (availability === "LOW") color = "#ef4444"; // red
+
+                        html += `
+                            <label style="display: block; margin-bottom: 0.5rem;">
+                                <input type="checkbox" class="deep-dive-option"
+                                    data-prompt="${option.prompt || ""}"
+                                    data-key="${option.key || option.section_key || ""}"
+                                    value="${name}">
+                                <span style="color: ${color}; font-weight: bold; font-size: 1.2em;">●</span> ${name}<br>
+                                <span style="margin-left: 2rem; font-size: small; color: #666;">${description}</span>
+                            </label>
+                        `;
+                    });
+                }
+
+                html += "<h5>Recommended Topics</h5>";
+                if (recommendedTopics.length > 0) {
+                    recommendedTopics.forEach((topic) => {
+                        const availability = (
+                            topic.availability || ""
+                        ).toUpperCase();
+                        const name = topic.name || topic.key || "";
+                        const description = topic.description || "";
+
+                        // Map availability to color (same as deep-dive)
+                        let color = "#999"; // default
+                        if (availability === "HIGH")
+                            color = "#22c55e"; // green
+                        else if (availability === "MEDIUM")
+                            color = "#f59e0b"; // orange
+                        else if (availability === "LOW") color = "#ef4444"; // red
+
+                        html += `
+                            <label style="display: block; margin-bottom: 0.5rem;">
+                                <input type="checkbox" class="recommended-topic"
+                                    data-prompt="${topic.prompt || ""}"
+                                    data-key="${topic.key || ""}"
+                                    value="${name}">
+                                <span style="color: ${color}; font-weight: bold; font-size: 1.2em;">●</span> ${name}<br>
+                                <span style="margin-left: 2rem; font-size: small; color: #666;">${description}</span>
+                            </label>
+                        `;
+                    });
+                }
+
+                html += `
+                    <label>
+                        <h5>Custom Topic</h5>
+                        <textarea id="custom-topic" rows="3" placeholder="Enter custom analysis topic..."></textarea>
+                    </label>
+                    <button onclick="appendSections()">Append Sections</button>
+                `;
+
+                analyzeContent.innerHTML = html;
+            }
+
+            function appendSections() {
+                const deepDiveCheckboxes = document.querySelectorAll(
+                    ".deep-dive-option:checked",
+                );
+                const recommendedCheckboxes = document.querySelectorAll(
+                    ".recommended-topic:checked",
+                );
+                const customTopic = document
+                    .getElementById("custom-topic")
+                    .value.trim();
+
+                // Collect all items to submit
+                const itemsToSubmit = [];
+
+                deepDiveCheckboxes.forEach((checkbox) => {
+                    itemsToSubmit.push({
+                        payload: {
+                            task_id: currentTaskId,
+                            user_prompt: checkbox.dataset.prompt,
+                            section_key: checkbox.dataset.key,
+                            is_followup: true,
+                        },
+                        label: checkbox.value,
+                    });
+                });
+
+                recommendedCheckboxes.forEach((checkbox) => {
+                    itemsToSubmit.push({
+                        payload: {
+                            task_id: currentTaskId,
+                            user_prompt: checkbox.dataset.prompt,
+                            section_key: checkbox.dataset.key,
+                            is_followup: true,
+                        },
+                        label: checkbox.value,
+                    });
+                });
+
+                if (customTopic) {
+                    itemsToSubmit.push({
+                        payload: {
+                            task_id: currentTaskId,
+                            user_prompt: customTopic,
+                            section_key: "custom_analysis",
+                            is_followup: true,
+                        },
+                        label: "Custom Topic",
+                    });
+                }
+
+                // Nothing to submit
+                if (itemsToSubmit.length === 0) {
+                    appendLog("No items selected to append");
+                    return;
+                }
+
+                // Mark REPORT tab as outdated and add spinner
+                const reportTab = document.getElementById("report-tab");
+                const reportDiv = reportTab.querySelector("div");
+                if (reportDiv) {
+                    reportDiv.classList.add("outdated");
+
+                    // Add spinner to tabs container
+                    const tabsContainer = document.querySelector(".tabs");
+                    if (!tabsContainer.querySelector(".spinner")) {
+                        const spinner = document.createElement("div");
+                        spinner.className = "spinner";
+                        spinner.id = "tab-spinner";
+                        tabsContainer.appendChild(spinner);
+                    }
+                }
+
+                // Expand LOGGING accordion, collapse others on right panel
+                document.getElementById("logging-accordion").open = true;
+                document.getElementById("profile-accordion").open = false;
+
+                // Reset polling state
+                lastLogCount = 0;
+
+                // Track pending requests
+                let pendingRequests = itemsToSubmit.length;
+
+                // Submit all items
+                itemsToSubmit.forEach((item) => {
+                    appendLog("Submitting: " + item.label);
+                    console.log("[POST]", API_URL, item.payload);
+
+                    fetch(API_URL, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(item.payload),
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            appendLog(
+                                "Response for '" +
+                                    item.label +
+                                    "': " +
+                                    (data.status || "ok"),
+                            );
+                            pendingRequests--;
+
+                            // When all requests are done, start polling for completion
+                            if (pendingRequests === 0) {
+                                appendLog(
+                                    "All followup requests submitted, polling for completion...",
+                                );
+                                startFollowupPolling();
+                            }
+                        })
+                        .catch((error) => {
+                            appendLog(
+                                "ERROR '" + item.label + "': " + error.message,
+                            );
+                            pendingRequests--;
+
+                            if (pendingRequests === 0) {
+                                startFollowupPolling();
+                            }
+                        });
+                });
+            }
+
+            function startFollowupPolling() {
+                // Poll for status until completed or awaiting_selection
+                const pollInterval = setInterval(() => {
+                    fetch(`${API_URL}?task_id=${currentTaskId}`)
+                        .then((response) => response.json())
+                        .then((response) => {
+                            const data = response.data || response;
+                            const status = data.status;
+                            const logs = data.logs || [];
+
+                            // Display new log entries
+                            if (logs.length > lastLogCount) {
+                                for (
+                                    let i = lastLogCount;
+                                    i < logs.length;
+                                    i++
+                                ) {
+                                    const log = logs[i];
+                                    const timestamp = log.timestamp
+                                        ? new Date(
+                                              log.timestamp,
+                                          ).toLocaleTimeString()
+                                        : "";
+                                    appendLog(log.message, timestamp);
+                                }
+                                lastLogCount = logs.length;
+                            }
+
+                            // Check for completion
+                            if (
+                                status === "completed" ||
+                                status === "awaiting_selection"
+                            ) {
+                                clearInterval(pollInterval);
+                                appendLog(
+                                    "Followup analysis complete - status: " +
+                                        status,
+                                );
+                                console.log("Final status object:", data);
+
+                                // Update REPORT tab with new content
+                                if (data.report) {
+                                    populateReportTab(data);
+                                }
+
+                                // Remove spinner and outdated state
+                                const reportTab =
+                                    document.getElementById("report-tab");
+                                const reportDiv =
+                                    reportTab.querySelector("div");
+                                if (reportDiv) {
+                                    reportDiv.classList.remove("outdated");
+                                }
+                                const tabsContainer =
+                                    document.querySelector(".tabs");
+                                const spinner =
+                                    tabsContainer.querySelector(".spinner");
+                                if (spinner) spinner.remove();
+                            } else if (
+                                status === "error" ||
+                                status === "failed"
+                            ) {
+                                clearInterval(pollInterval);
+                                appendLog(
+                                    "ERROR: " + (data.error || "Unknown error"),
+                                );
+
+                                // Remove spinner
+                                const tabsContainer =
+                                    document.querySelector(".tabs");
+                                const spinner =
+                                    tabsContainer.querySelector(".spinner");
+                                if (spinner) spinner.remove();
+                            }
+                        })
+                        .catch((error) => {
+                            appendLog("Polling error: " + error.message);
+                        });
+                }, 2000); // Poll every 2 seconds
+            }
+        </script>
+    </body>
+</html>
