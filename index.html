@@ -74,9 +74,10 @@
                 position: absolute;
                 right: 10px;
                 top: 5px;
-                width: 24px;
-                height: 24px;
-                border-width: 3px;
+                width: 32px;
+                height: 32px;
+                border: 4px solid #ccc;
+                border-top: 4px solid #1a73e8;
                 margin: 0;
             }
             .tab {
@@ -95,12 +96,228 @@
             }
             .tab-content {
                 display: none;
+                position: relative;
             }
             .tab-content.active {
                 display: block;
                 overflow-y: auto;
                 max-height: calc(100vh - 8rem);
                 font-size: 0.75rem;
+            }
+            .export-btn {
+                position: absolute;
+                top: 0.5rem;
+                right: 0.5rem;
+                font-size: small;
+                z-index: 10;
+            }
+            /* Lighter, italic placeholder text for all inputs except filters */
+            textarea:not([name="filters"])::placeholder,
+            input:not([name="filters"])::placeholder {
+                color: #999;
+                font-style: italic;
+                opacity: 1;
+            }
+            textarea:not([name="filters"])::-webkit-input-placeholder,
+            input:not([name="filters"])::-webkit-input-placeholder {
+                color: #999;
+                font-style: italic;
+                opacity: 1;
+            }
+            textarea:not([name="filters"])::-moz-placeholder,
+            input:not([name="filters"])::-moz-placeholder {
+                color: #999;
+                font-style: italic;
+                opacity: 1;
+            }
+            /* Stats panel styling */
+            .stats-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.5rem;
+            }
+            .stats-header h4 {
+                margin: 0;
+                font-size: 0.9rem;
+            }
+            .stats-toggle {
+                display: flex;
+                gap: 0.25rem;
+            }
+            .stats-toggle button {
+                padding: 0.2rem 0.4rem;
+                font-size: 0.7rem;
+                background: #e0e0e0;
+                border: 1px solid #ccc;
+                cursor: pointer;
+            }
+            .stats-toggle button.active {
+                background: #1a73e8;
+                color: white;
+                border-color: #1a73e8;
+            }
+            .stats-cards {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+                margin-bottom: 0.75rem;
+            }
+            .stats-card {
+                background: #f8f9fa;
+                border: 1px solid #e0e0e0;
+                border-radius: 4px;
+                padding: 0.5rem;
+                text-align: center;
+            }
+            .stats-card .label {
+                font-size: 0.65rem;
+                color: #666;
+                text-transform: uppercase;
+                margin-bottom: 0.2rem;
+            }
+            .stats-card .value {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #333;
+            }
+            .stats-section {
+                margin-bottom: 0.75rem;
+            }
+            .stats-section h5 {
+                font-size: 0.75rem;
+                color: #555;
+                margin: 0 0 0.4rem 0;
+                border-bottom: 1px solid #e0e0e0;
+                padding-bottom: 0.2rem;
+            }
+            .range-bar {
+                position: relative;
+                height: 24px;
+                background: #e9ecef;
+                border-radius: 4px;
+                margin: 0.3rem 0;
+            }
+            .range-bar .range-fill {
+                position: absolute;
+                height: 100%;
+                background: linear-gradient(
+                    90deg,
+                    #d0ebff 0%,
+                    #a5d8ff 50%,
+                    #d0ebff 100%
+                );
+                border-radius: 4px;
+            }
+            .range-bar.production .range-fill {
+                background: linear-gradient(
+                    90deg,
+                    #d3f9d8 0%,
+                    #b2f2bb 50%,
+                    #d3f9d8 100%
+                );
+            }
+            .range-bar.lateral .range-fill {
+                background: linear-gradient(
+                    90deg,
+                    #fff3bf 0%,
+                    #ffec99 50%,
+                    #fff3bf 100%
+                );
+            }
+            .range-bar .range-labels {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 0.4rem;
+                font-size: 0.65rem;
+            }
+            .range-bar .p50-marker {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: #333;
+            }
+            .range-bar .p50-label {
+                position: absolute;
+                top: -14px;
+                font-size: 0.6rem;
+                color: #333;
+                transform: translateX(-50%);
+            }
+            .stats-table {
+                width: 100%;
+                font-size: 0.7rem;
+                border-collapse: collapse;
+            }
+            .stats-table th,
+            .stats-table td {
+                padding: 0.25rem 0.4rem;
+                text-align: left;
+                border-bottom: 1px solid #e9ecef;
+            }
+            .stats-table th {
+                color: #666;
+                font-weight: 500;
+            }
+            .stats-table .bar-cell {
+                width: 40%;
+            }
+            .stats-table .mini-bar {
+                height: 12px;
+                background: #4dabf7;
+                border-radius: 2px;
+            }
+            .stats-raw {
+                font-family: monospace;
+                font-size: 0.65rem;
+                background: #f8f9fa;
+                padding: 0.5rem;
+                overflow-x: auto;
+                white-space: pre-wrap;
+                overflow-y: auto;
+            }
+            .well-types {
+                display: flex;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+                margin-bottom: 0.5rem;
+            }
+            .well-type-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.3rem;
+                font-size: 0.7rem;
+            }
+            .well-type-badge .count {
+                background: #6c757d;
+                color: white;
+                padding: 0.1rem 0.4rem;
+                border-radius: 10px;
+                font-size: 0.65rem;
+            }
+            .well-type-badge.horizontal .count {
+                background: #e67700;
+            }
+            .well-type-badge.vertical .count {
+                background: #1971c2;
+            }
+            .well-type-badge.deviated .count {
+                background: #2f9e44;
+            }
+            .date-range {
+                font-size: 0.7rem;
+                color: #555;
+            }
+            .date-range span {
+                display: block;
+                margin: 0.2rem 0;
             }
         </style>
         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -227,7 +444,7 @@
                 </form>
             </details>
 
-            <details id="focus-accordion">
+            <details id="focus-accordion" style="display: none">
                 <summary>FOCUS</summary>
                 <div id="focus-content">
                     <p>
@@ -237,7 +454,7 @@
                 </div>
             </details>
 
-            <details id="analyze-accordion">
+            <details id="analyze-accordion" style="display: none">
                 <summary>ANALYZE</summary>
                 <div id="analyze-content">
                     <p>Analysis options will appear here.</p>
@@ -249,8 +466,21 @@
                 <button class="tab active" onclick="switchTab('geostat')">
                     GEOSTAT
                 </button>
-                <button class="tab" onclick="switchTab('report')">
+                <button
+                    id="report-tab-btn"
+                    class="tab"
+                    onclick="switchTab('report')"
+                    style="display: none"
+                >
                     REPORT
+                </button>
+                <button
+                    id="explore-tab-btn"
+                    class="tab"
+                    onclick="switchTab('explore')"
+                    style="display: none"
+                >
+                    EXPLORE
                 </button>
             </div>
             <div id="geostat-tab" class="tab-content active">
@@ -258,6 +488,54 @@
             </div>
             <div id="report-tab" class="tab-content">
                 <p>Report will appear here...</p>
+            </div>
+            <div id="explore-tab" class="tab-content">
+                <button
+                    id="explore-export-btn"
+                    onclick="exportExploreHistory()"
+                    class="secondary export-btn"
+                >
+                    Export
+                </button>
+                <div
+                    id="explore-header"
+                    style="
+                        padding: 1rem;
+                        background: #f5f5f5;
+                        border-bottom: 1px solid #ddd;
+                    "
+                >
+                    <h4 style="margin: 0">Explore your filtered dataset</h4>
+                </div>
+                <div
+                    id="explore-messages"
+                    style="padding: 1rem; max-height: 60vh; overflow-y: auto"
+                >
+                    <!-- Messages will appear here -->
+                </div>
+                <div
+                    style="
+                        padding: 1rem;
+                        border-top: 1px solid #ddd;
+                        background: #fafafa;
+                    "
+                >
+                    <div style="display: flex; gap: 0.5rem">
+                        <textarea
+                            id="explore-input"
+                            placeholder="Ask a question about the data..."
+                            rows="2"
+                            style="flex: 1; resize: vertical"
+                        ></textarea>
+                        <button
+                            id="explore-send"
+                            onclick="sendExploreQuery()"
+                            disabled
+                        >
+                            Send
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="right-panel">
@@ -277,18 +555,12 @@
             </details>
 
             <details id="profile-accordion">
-                <summary>PROFILE</summary>
-                <textarea
-                    id="profile-output"
-                    readonly
-                    rows="30"
-                    style="
-                        font-family: monospace;
-                        font-size: small;
-                        width: 100%;
-                        resize: vertical;
-                    "
-                ></textarea>
+                <summary>STATS</summary>
+                <div id="stats-content">
+                    <p style="color: #666; font-size: small">
+                        Stats will appear after analysis...
+                    </p>
+                </div>
             </details>
         </div>
 
@@ -315,6 +587,9 @@
         <script>
             let intentsData = [];
             let currentTaskId = null;
+            let currentDeepDiveOptions = [];
+            let currentRecommendedTopics = [];
+            let exploreHistory = [];
             const API_URL =
                 "https://dev.geologic.com/api/functions/gemini_api/v3";
 
@@ -342,15 +617,17 @@
                     .classList.add("active");
             }
 
-            // Load intents on page load
-            fetch("/api/intents")
+            // Load intents on page load from API
+            fetch(`${API_URL}/get_intent_ui`)
                 .then((response) => response.json())
-                .then((data) => {
-                    intentsData = data;
+                .then((response) => {
+                    // API wraps response in {data: {...}}
+                    const data = response.data || response;
+                    intentsData = data.intents || [];
                     const select = document.getElementById("intent-select");
                     select.innerHTML = "";
 
-                    data.forEach((intent, index) => {
+                    intentsData.forEach((intent, index) => {
                         const option = document.createElement("option");
                         option.value = intent.name;
                         option.textContent = intent.name
@@ -359,8 +636,12 @@
                         select.appendChild(option);
                     });
 
-                    // Trigger change to load first intent
-                    if (data.length > 0) {
+                    // Trigger change to load first intent (or default)
+                    if (intentsData.length > 0) {
+                        // Set to default intent if available
+                        const defaultIntent =
+                            data.default_intent || intentsData[0].name;
+                        select.value = defaultIntent;
                         select.dispatchEvent(new Event("change"));
                     }
                 });
@@ -386,21 +667,18 @@
                     const fieldset =
                         sectionsContainer.querySelector("fieldset");
 
-                    selectedIntent.sections.forEach((section) => {
+                    const sections = selectedIntent.available_sections || [];
+                    sections.forEach((section) => {
                         const label = document.createElement("label");
                         const checkbox = document.createElement("input");
                         checkbox.type = "checkbox";
                         checkbox.name = "section";
-                        checkbox.value = section;
+                        checkbox.value = section.id;
                         checkbox.checked = true;
-
-                        const displayName = section
-                            .replace(/_/g, " ")
-                            .replace(/\b\w/g, (l) => l.toUpperCase());
 
                         label.appendChild(checkbox);
                         label.appendChild(
-                            document.createTextNode(" " + displayName),
+                            document.createTextNode(" " + section.label),
                         );
                         fieldset.appendChild(label);
                     });
@@ -650,7 +928,7 @@
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
                         <button id="focus-btn" class="secondary" disabled onclick="submitFocus()">Apply Focus</button>
                         <span style="color: #666; font-size: small;">or</span>
-                        <button id="continue-btn" onclick="submitContinue()">Continue to Analysis</button>
+                        <button id="continue-btn" onclick="submitContinue()">Continue to Report</button>
                     </div>
                 `;
 
@@ -663,6 +941,14 @@
                         const focusBtn = document.getElementById("focus-btn");
                         focusBtn.disabled = e.target.value.trim() === "";
                     });
+
+                // Show FOCUS accordion, open it, and close INITIALIZE
+                const focusAccordion =
+                    document.getElementById("focus-accordion");
+                const initAccordion = document.getElementById("init-accordion");
+                focusAccordion.style.display = "";
+                focusAccordion.open = true;
+                initAccordion.open = false;
             }
 
             function submitFocus() {
@@ -772,19 +1058,19 @@
                 document.getElementById("focus-accordion").open = false;
                 document.getElementById("analyze-accordion").open = true;
 
-                // Collapse LOGGING accordion
-                document.getElementById("logging-accordion").open = false;
-
-                // Populate PROFILE accordion
+                // Populate STATS accordion
                 const report = data.report || {};
                 const profileStats = report.sections?.profile_stats || {};
-                document.getElementById("profile-output").value =
-                    JSON.stringify(profileStats, null, 2);
+                renderStatsPanel(profileStats);
+
+                // Expand STATS accordion when first populated
+                document.getElementById("profile-accordion").open = true;
 
                 // Update GEOSTAT tab with full geostat_summary
                 const geostatSummary = report.sections?.geostat_summary || "";
                 const geostatTab = document.getElementById("geostat-tab");
                 geostatTab.innerHTML =
+                    '<button onclick="exportGeostat()" class="secondary export-btn">Export</button>' +
                     '<div style="padding: 1rem;">' +
                     "<h2>Geostat Analysis</h2>" +
                     marked.parse(geostatSummary) +
@@ -802,13 +1088,19 @@
 
                 // Populate ANALYZE accordion
                 populateAnalyzeForm(data);
+
+                // Enable EXPLORE tab
+                enableExplore();
             }
 
             function populateReportTab(data) {
                 const report = data.report || {};
                 const reportTab = document.getElementById("report-tab");
 
-                let html = '<div style="padding: 1rem;">';
+                let html =
+                    '<button onclick="exportReport()" class="secondary export-btn">Export</button>';
+                html += '<div style="padding: 1rem;">';
+                html += "<h2>Analysis Report</h2>";
 
                 // Additional context
                 if (report.additional_context) {
@@ -864,6 +1156,20 @@
                     document.getElementById("analyze-content");
                 const deepDiveOptions = data.deep_dive_options || [];
                 const recommendedTopics = data.recommended_topics || [];
+
+                // Store globally for later updates
+                currentDeepDiveOptions = deepDiveOptions;
+                currentRecommendedTopics = recommendedTopics;
+
+                renderAnalyzeAccordion(deepDiveOptions, recommendedTopics);
+            }
+
+            function renderAnalyzeAccordion(
+                deepDiveOptions,
+                recommendedTopics,
+            ) {
+                const analyzeContent =
+                    document.getElementById("analyze-content");
 
                 let html = "<h5>Deep-Dive Topics</h5>";
                 html +=
@@ -938,6 +1244,21 @@
                 `;
 
                 analyzeContent.innerHTML = html;
+
+                // Show ANALYZE accordion, open it, and close INITIALIZE and FOCUS
+                const analyzeAccordion =
+                    document.getElementById("analyze-accordion");
+                const initAccordion = document.getElementById("init-accordion");
+                const focusAccordion =
+                    document.getElementById("focus-accordion");
+                analyzeAccordion.style.display = "";
+                analyzeAccordion.open = true;
+                initAccordion.open = false;
+                focusAccordion.open = false;
+
+                // Show REPORT and EXPLORE tabs in center panel
+                document.getElementById("report-tab-btn").style.display = "";
+                document.getElementById("explore-tab-btn").style.display = "";
             }
 
             function appendSections() {
@@ -1012,15 +1333,14 @@
                     }
                 }
 
-                // Expand LOGGING accordion, collapse others on right panel
-                document.getElementById("logging-accordion").open = true;
-                document.getElementById("profile-accordion").open = false;
-
                 // Reset polling state
                 lastLogCount = 0;
 
                 // Track pending requests
                 let pendingRequests = itemsToSubmit.length;
+
+                // Track completed responses for appending to report
+                const completedResponses = [];
 
                 // Submit all items
                 itemsToSubmit.forEach((item) => {
@@ -1036,20 +1356,51 @@
                     })
                         .then((response) => response.json())
                         .then((data) => {
-                            appendLog(
-                                "Response for '" +
-                                    item.label +
-                                    "': " +
-                                    (data.status || "ok"),
-                            );
+                            // Follow-up responses are synchronous - they return immediately with content
+                            if (
+                                data.is_followup &&
+                                data.Analysis &&
+                                data.Analysis.response
+                            ) {
+                                const timing =
+                                    data.timing?.followup_seconds || 0;
+                                appendLog(
+                                    "Completed '" +
+                                        item.label +
+                                        "' (" +
+                                        timing.toFixed(1) +
+                                        "s)",
+                                );
+                                completedResponses.push({
+                                    label: item.label,
+                                    content:
+                                        data.Analysis.response_display ||
+                                        data.Analysis.response,
+                                });
+
+                                // Update deep-dive and recommended options if provided
+                                if (data.deep_dive_options) {
+                                    currentDeepDiveOptions =
+                                        data.deep_dive_options;
+                                }
+                                if (data.recommended_topics) {
+                                    currentRecommendedTopics =
+                                        data.recommended_topics;
+                                }
+                            } else {
+                                appendLog(
+                                    "Response for '" +
+                                        item.label +
+                                        "': " +
+                                        (data.status || "ok"),
+                                );
+                            }
                             pendingRequests--;
 
-                            // When all requests are done, start polling for completion
+                            // When all requests are done, update the UI
                             if (pendingRequests === 0) {
-                                appendLog(
-                                    "All followup requests submitted, polling for completion...",
-                                );
-                                startFollowupPolling();
+                                appendLog("All sections completed");
+                                finishFollowupRequests(completedResponses);
                             }
                         })
                         .catch((error) => {
@@ -1059,10 +1410,481 @@
                             pendingRequests--;
 
                             if (pendingRequests === 0) {
-                                startFollowupPolling();
+                                finishFollowupRequests(completedResponses);
                             }
                         });
                 });
+            }
+
+            function finishFollowupRequests(completedResponses) {
+                // Remove spinner
+                const spinner = document.getElementById("tab-spinner");
+                if (spinner) spinner.remove();
+
+                // Remove outdated styling from report
+                const reportTab = document.getElementById("report-tab");
+                const reportDiv = reportTab.querySelector("div");
+                if (reportDiv) {
+                    reportDiv.classList.remove("outdated");
+                }
+
+                // Append completed sections to the report
+                if (completedResponses.length > 0) {
+                    let reportContent = reportDiv ? reportDiv.innerHTML : "";
+
+                    completedResponses.forEach((resp) => {
+                        // Add section header and content
+                        reportContent += `\n\n<h2>${resp.label}</h2>\n${marked.parse(resp.content)}`;
+                    });
+
+                    if (reportDiv) {
+                        reportDiv.innerHTML = reportContent;
+                    }
+
+                    appendLog(
+                        "Report updated with " +
+                            completedResponses.length +
+                            " new section(s)",
+                    );
+                }
+
+                // Refresh the ANALYZE accordion with updated options
+                if (currentDeepDiveOptions || currentRecommendedTopics) {
+                    renderAnalyzeAccordion(
+                        currentDeepDiveOptions || [],
+                        currentRecommendedTopics || [],
+                    );
+                }
+            }
+
+            function enableExplore() {
+                // Enable the send button
+                document.getElementById("explore-send").disabled = false;
+
+                // Enable Enter key to send (only add listener once)
+                const input = document.getElementById("explore-input");
+                if (!input.dataset.listenerAdded) {
+                    input.addEventListener("keydown", function (e) {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            sendExploreQuery();
+                        }
+                    });
+                    input.dataset.listenerAdded = "true";
+                }
+            }
+
+            function sendExploreQuery() {
+                const input = document.getElementById("explore-input");
+                const question = input.value.trim();
+
+                if (!question || !currentTaskId) return;
+
+                // Add user message to chat
+                addExploreMessage("user", question);
+
+                // Clear input
+                input.value = "";
+
+                // Replace Send button with spinner
+                const sendBtn = document.getElementById("explore-send");
+                const originalText = sendBtn.textContent;
+                sendBtn.innerHTML = '<div class="spinner"></div>';
+                sendBtn.disabled = true;
+
+                // Send query
+                fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        task_id: currentTaskId,
+                        action: "query",
+                        question: question,
+                        history: exploreHistory,
+                    }),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        // Restore button
+                        sendBtn.innerHTML = originalText;
+                        sendBtn.disabled = false;
+
+                        const answer =
+                            data.answer ||
+                            data.data?.answer ||
+                            "No response received.";
+
+                        // Add assistant response
+                        addExploreMessage("assistant", answer);
+
+                        // Update history
+                        exploreHistory.push({
+                            role: "user",
+                            content: question,
+                        });
+                        exploreHistory.push({
+                            role: "assistant",
+                            content: answer,
+                        });
+
+                        // Log the interaction
+                        appendLog(
+                            `Query sent: ${question.substring(0, 50)}${question.length > 50 ? "..." : ""}`,
+                        );
+                    })
+                    .catch((error) => {
+                        // Restore button
+                        sendBtn.innerHTML = originalText;
+                        sendBtn.disabled = false;
+
+                        addExploreMessage(
+                            "assistant",
+                            `Error: ${error.message}`,
+                        );
+                        appendLog(`ERROR: ${error.message}`);
+                    });
+            }
+
+            let messageIdCounter = 0;
+            function addExploreMessage(role, content, isTemporary = false) {
+                const messagesDiv = document.getElementById("explore-messages");
+                const messageId = `msg-${messageIdCounter++}`;
+
+                const messageDiv = document.createElement("div");
+                messageDiv.id = messageId;
+                messageDiv.style.marginBottom = "1rem";
+                messageDiv.style.padding = "0.75rem";
+                messageDiv.style.borderRadius = "0.5rem";
+
+                if (role === "user") {
+                    messageDiv.style.background = "#e3f2fd";
+                    messageDiv.style.marginLeft = "2rem";
+                    messageDiv.innerHTML = `<div style="font-weight: bold; margin-bottom: 0.25rem; color: #1976d2;">You:</div><div>${escapeHtml(content)}</div>`;
+                } else {
+                    messageDiv.style.background = isTemporary
+                        ? "#fff3cd"
+                        : "#f5f5f5";
+                    messageDiv.style.marginRight = "2rem";
+                    messageDiv.innerHTML = `<div style="font-weight: bold; margin-bottom: 0.25rem; color: #555;">Assistant:</div><div>${marked.parse(content)}</div>`;
+                }
+
+                messagesDiv.appendChild(messageDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                return messageId;
+            }
+
+            function removeExploreMessage(messageId) {
+                const messageDiv = document.getElementById(messageId);
+                if (messageDiv) {
+                    messageDiv.remove();
+                }
+            }
+
+            // Store raw stats for toggle
+            let rawProfileStats = {};
+
+            function renderStatsPanel(stats) {
+                rawProfileStats = stats;
+                const container = document.getElementById("stats-content");
+
+                if (!stats || Object.keys(stats).length === 0) {
+                    container.innerHTML =
+                        '<p style="color: #666; font-size: small;">No stats available.</p>';
+                    return;
+                }
+
+                const summary = stats.summary || {};
+                const production = stats.production || {};
+                const operators = stats.operators || {};
+                const depth = stats.depth || {};
+                const descriptions = stats.category_descriptions || {};
+
+                let html = "";
+
+                // Header with toggle buttons
+                html += `
+                    <div class="stats-header">
+                        <h4>Profile Data</h4>
+                        <div class="stats-toggle">
+                            <button class="active" onclick="showStatsView('visual')">Visual</button>
+                            <button onclick="showStatsView('raw')">JSON</button>
+                        </div>
+                    </div>
+                `;
+
+                html += '<div id="stats-visual-view">';
+
+                // Summary cards
+                html += '<div class="stats-cards">';
+                html += `<div class="stats-card"><div class="label">Total Wells</div><div class="value">${formatNumber(summary.total_wells)}</div></div>`;
+                html += `<div class="stats-card"><div class="label">Operators</div><div class="value">${formatNumber(summary.unique_operators)}</div></div>`;
+                html += `<div class="stats-card"><div class="label">Formations</div><div class="value">${formatNumber(summary.unique_formations)}</div></div>`;
+                html += `<div class="stats-card"><div class="label">Fields</div><div class="value">${formatNumber(summary.unique_fields)}</div></div>`;
+                html += "</div>";
+
+                // Well types
+                if (
+                    summary.horizontal_wells ||
+                    summary.vertical_wells ||
+                    summary.deviated_wells
+                ) {
+                    html += '<div class="stats-section"><h5>Well Types</h5>';
+                    html += '<div class="well-types">';
+                    if (summary.horizontal_wells)
+                        html += `<span class="well-type-badge horizontal"><span class="count">${summary.horizontal_wells}</span> Horizontal</span>`;
+                    if (summary.vertical_wells)
+                        html += `<span class="well-type-badge vertical"><span class="count">${summary.vertical_wells}</span> Vertical</span>`;
+                    if (summary.deviated_wells)
+                        html += `<span class="well-type-badge deviated"><span class="count">${summary.deviated_wells}</span> Deviated</span>`;
+                    html += "</div></div>";
+                }
+
+                // Date range
+                if (summary.earliest_spud || summary.latest_spud) {
+                    html += '<div class="stats-section"><h5>Date Range</h5>';
+                    html += '<div class="date-range">';
+                    if (summary.earliest_spud)
+                        html += `<span>Earliest: ${summary.earliest_spud}</span>`;
+                    if (summary.latest_spud)
+                        html += `<span>Latest: ${summary.latest_spud}</span>`;
+                    html += "</div></div>";
+                }
+
+                // Production P10/P50/P90
+                if (production.boe) {
+                    html +=
+                        '<div class="stats-section"><h5>Production (BOE)</h5>';
+                    html += renderRangeBar(
+                        production.boe.p10,
+                        production.boe.p50,
+                        production.boe.p90,
+                        "production",
+                    );
+                    html += "</div>";
+                }
+
+                // Depth/Lateral length
+                if (depth.lateral_length) {
+                    html +=
+                        '<div class="stats-section"><h5>Lateral Length (m)</h5>';
+                    html += renderRangeBar(
+                        depth.lateral_length.p10,
+                        depth.lateral_length.p50,
+                        depth.lateral_length.p90,
+                        "lateral",
+                    );
+                    html += "</div>";
+                }
+
+                // Top operators
+                if (
+                    operators.top_operators &&
+                    operators.top_operators.length > 0
+                ) {
+                    const maxWells = Math.max(
+                        ...operators.top_operators.map(
+                            (o) => o.well_count || 0,
+                        ),
+                    );
+                    html += '<div class="stats-section"><h5>Top Operators</h5>';
+                    html +=
+                        '<table class="stats-table"><thead><tr><th>Operator</th><th>Wells</th><th class="bar-cell"></th></tr></thead><tbody>';
+                    operators.top_operators.slice(0, 5).forEach((op) => {
+                        const pct =
+                            maxWells > 0
+                                ? ((op.well_count || 0) / maxWells) * 100
+                                : 0;
+                        html += `<tr>
+                            <td>${escapeHtml(op.name || op.operator || "Unknown")}</td>
+                            <td>${op.well_count || 0}</td>
+                            <td class="bar-cell"><div class="mini-bar" style="width: ${pct}%"></div></td>
+                        </tr>`;
+                    });
+                    html += "</tbody></table></div>";
+                }
+
+                html += "</div>"; // end stats-visual-view
+
+                // Raw JSON view (hidden by default)
+                html += `<div id="stats-raw-view" style="display: none;"><pre class="stats-raw">${escapeHtml(JSON.stringify(stats, null, 2))}</pre></div>`;
+
+                container.innerHTML = html;
+            }
+
+            function showStatsView(view) {
+                const visualView = document.getElementById("stats-visual-view");
+                const rawView = document.getElementById("stats-raw-view");
+                const buttons = document.querySelectorAll(
+                    ".stats-toggle button",
+                );
+
+                buttons.forEach((btn) => btn.classList.remove("active"));
+
+                if (view === "raw") {
+                    visualView.style.display = "none";
+                    rawView.style.display = "block";
+                    buttons[1].classList.add("active");
+                } else {
+                    visualView.style.display = "block";
+                    rawView.style.display = "none";
+                    buttons[0].classList.add("active");
+                }
+            }
+
+            function renderRangeBar(p10, p50, p90, type = "") {
+                if (p10 == null || p90 == null) return "";
+
+                // Calculate positions as percentages
+                const range = p90 - p10;
+                const p50Pct = range > 0 ? ((p50 - p10) / range) * 100 : 50;
+
+                return `
+                    <div class="range-bar ${type}">
+                        <div class="range-fill" style="left: 0; width: 100%;"></div>
+                        <div class="p50-marker" style="left: ${p50Pct}%;">
+                            <span class="p50-label">P50: ${formatNumber(p50)}</span>
+                        </div>
+                        <div class="range-labels">
+                            <span>P10: ${formatNumber(p10)}</span>
+                            <span>P90: ${formatNumber(p90)}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function formatNumber(num) {
+                if (num == null) return "-";
+                if (typeof num !== "number") return num;
+                if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+                if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+                return num.toLocaleString();
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement("div");
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function downloadMarkdown(filename, content) {
+                const blob = new Blob([content], { type: "text/markdown" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            function exportExploreHistory() {
+                if (exploreHistory.length === 0) {
+                    alert("No conversation to export.");
+                    return;
+                }
+
+                const timestamp = new Date()
+                    .toISOString()
+                    .slice(0, 19)
+                    .replace(/[T:]/g, "-");
+                let markdown = `# Explore Session\n\nExported: ${new Date().toLocaleString()}\n\n---\n\n`;
+
+                for (let i = 0; i < exploreHistory.length; i += 2) {
+                    const userMsg = exploreHistory[i];
+                    const assistantMsg = exploreHistory[i + 1];
+
+                    markdown += `## Q: ${userMsg.content}\n\n`;
+                    if (assistantMsg) {
+                        markdown += `${assistantMsg.content}\n\n---\n\n`;
+                    }
+                }
+
+                downloadMarkdown(`explore-${timestamp}.md`, markdown);
+                appendLog("Exported explore history to markdown");
+            }
+
+            function exportReport() {
+                const reportTab = document.getElementById("report-tab");
+                const reportDiv = reportTab.querySelector("div");
+                if (!reportDiv || !reportDiv.textContent.trim()) {
+                    alert("No report to export.");
+                    return;
+                }
+
+                const timestamp = new Date()
+                    .toISOString()
+                    .slice(0, 19)
+                    .replace(/[T:]/g, "-");
+
+                // Get the raw markdown from the report sections if available
+                // For now, extract text content and structure it
+                let markdown = `# Analysis Report\n\nExported: ${new Date().toLocaleString()}\n\n---\n\n`;
+
+                // Walk through the report HTML and extract content
+                const headers = reportDiv.querySelectorAll("h1, h2, h3, h4");
+                if (headers.length > 0) {
+                    headers.forEach((header) => {
+                        const level = parseInt(header.tagName[1]);
+                        const prefix = "#".repeat(level);
+                        markdown += `${prefix} ${header.textContent}\n\n`;
+
+                        // Get content until next header
+                        let sibling = header.nextElementSibling;
+                        while (sibling && !sibling.matches("h1, h2, h3, h4")) {
+                            if (sibling.textContent.trim()) {
+                                markdown += `${sibling.textContent.trim()}\n\n`;
+                            }
+                            sibling = sibling.nextElementSibling;
+                        }
+                    });
+                } else {
+                    markdown += reportDiv.textContent;
+                }
+
+                downloadMarkdown(`report-${timestamp}.md`, markdown);
+                appendLog("Exported report to markdown");
+            }
+
+            function exportGeostat() {
+                const geostatTab = document.getElementById("geostat-tab");
+                const geostatDiv = geostatTab.querySelector("div");
+                if (!geostatDiv || !geostatDiv.textContent.trim()) {
+                    alert("No geostat analysis to export.");
+                    return;
+                }
+
+                const timestamp = new Date()
+                    .toISOString()
+                    .slice(0, 19)
+                    .replace(/[T:]/g, "-");
+
+                let markdown = `# Geostat Analysis\n\nExported: ${new Date().toLocaleString()}\n\n---\n\n`;
+
+                // Walk through the geostat HTML and extract content
+                const headers = geostatDiv.querySelectorAll("h1, h2, h3, h4");
+                if (headers.length > 0) {
+                    headers.forEach((header) => {
+                        const level = parseInt(header.tagName[1]);
+                        const prefix = "#".repeat(level);
+                        markdown += `${prefix} ${header.textContent}\n\n`;
+
+                        // Get content until next header
+                        let sibling = header.nextElementSibling;
+                        while (sibling && !sibling.matches("h1, h2, h3, h4")) {
+                            if (sibling.textContent.trim()) {
+                                markdown += `${sibling.textContent.trim()}\n\n`;
+                            }
+                            sibling = sibling.nextElementSibling;
+                        }
+                    });
+                } else {
+                    markdown += geostatDiv.textContent;
+                }
+
+                downloadMarkdown(`geostat-${timestamp}.md`, markdown);
+                appendLog("Exported geostat to markdown");
             }
 
             function startFollowupPolling() {
