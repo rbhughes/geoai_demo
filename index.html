@@ -10,6 +10,9 @@
         />
         <script src="https://unpkg.com/htmx.org@2.0.4"></script>
         <style>
+            /* =================================================================
+               LAYOUT
+               ================================================================= */
             body {
                 display: flex;
                 margin: 0;
@@ -20,6 +23,8 @@
                 width: 25%;
                 padding: 1rem;
                 overflow-y: auto;
+                display: flex;
+                flex-direction: column;
             }
             .center-panel {
                 width: 50%;
@@ -31,39 +36,10 @@
                 padding: 1rem;
                 overflow-y: auto;
             }
-            textarea[name="filters"] {
-                font-family: monospace;
-                font-size: small;
-            }
-            #intent-description {
-                font-size: small;
-                color: #666;
-                margin-bottom: 1rem;
-            }
-            #sections-container {
-                font-size: small;
-            }
-            .outdated {
-                opacity: 0.5;
-                font-style: italic;
-            }
-            .spinner {
-                border: 4px solid #f3f3f3;
-                border-top: 4px solid #3498db;
-                border-radius: 50%;
-                width: 40px;
-                height: 40px;
-                animation: spin 1s linear infinite;
-                margin: 2rem auto;
-            }
-            @keyframes spin {
-                0% {
-                    transform: rotate(0deg);
-                }
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
+
+            /* =================================================================
+               TABS
+               ================================================================= */
             .tabs {
                 display: flex;
                 border-bottom: 2px solid #ccc;
@@ -104,12 +80,26 @@
                 max-height: calc(100vh - 8rem);
                 font-size: 0.75rem;
             }
-            .export-btn {
-                position: absolute;
-                top: 0.5rem;
-                right: 0.5rem;
+            /* Explore tab uses flex column, input sticks to bottom only when content overflows */
+            .tab-content.explore-container.active {
+                display: flex;
+                max-height: calc(100vh - 8rem);
+            }
+
+            /* =================================================================
+               FORMS & INPUTS
+               ================================================================= */
+            textarea[name="filters"] {
+                font-family: monospace;
                 font-size: small;
-                z-index: 10;
+            }
+            #intent-description {
+                font-size: small;
+                color: #666;
+                margin-bottom: 1rem;
+            }
+            #sections-container {
+                font-size: small;
             }
             /* Lighter, italic placeholder text for all inputs except filters */
             textarea:not([name="filters"])::placeholder,
@@ -130,7 +120,138 @@
                 font-style: italic;
                 opacity: 1;
             }
-            /* Stats panel styling */
+
+            /* =================================================================
+               BUTTONS & EXPORTS
+               ================================================================= */
+            .export-btn {
+                position: absolute;
+                top: 0.5rem;
+                right: 0.5rem;
+                font-size: small;
+                z-index: 10;
+            }
+
+            /* =================================================================
+               SPINNER & LOADING STATES
+               ================================================================= */
+            .spinner {
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #3498db;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin: 2rem auto;
+            }
+            .spinner-small {
+                width: 1.5rem;
+                height: 1.5rem;
+                border-width: 2px;
+                margin: 0;
+            }
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+            .outdated {
+                opacity: 0.5;
+                font-style: italic;
+            }
+
+            /* =================================================================
+               EXPLORE TAB
+               ================================================================= */
+            .explore-container {
+                flex-direction: column;
+                /* No fixed height - grows with content, capped by max-height on .active */
+            }
+            .explore-header {
+                padding: 1rem;
+                background: #e0e0e0;
+            }
+            .explore-header h4 {
+                margin: 0;
+            }
+            .explore-messages {
+                padding: 0 1rem;
+                overflow-y: auto;
+                background: #e0e0e0;
+                /* Grows naturally with content; scrolls when exceeding max-height */
+                max-height: calc(100vh - 14rem);
+            }
+            .explore-input-container {
+                padding: 1rem;
+                background: #e0e0e0;
+            }
+            .explore-input-wrapper {
+                position: relative;
+            }
+            .explore-input {
+                width: 100%;
+                padding: 1.1rem 4rem 1.1rem 1.1rem;
+                border-radius: 2rem;
+                border: 1px solid #ccc;
+                resize: none;
+                font-size: 1.1rem;
+                background: white;
+                line-height: 1.5;
+            }
+            .explore-send {
+                position: absolute;
+                right: 0.75rem;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 1.5rem;
+                height: 1.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .explore-message {
+                margin-bottom: 1rem;
+                padding: 0.75rem;
+                border-radius: 0.5rem;
+            }
+            .explore-message.user {
+                background: #e3f2fd;
+                margin-left: 2rem;
+            }
+            .explore-message.assistant {
+                background: #f5f5f5;
+                margin-right: 2rem;
+            }
+            .explore-message.temporary {
+                background: #fff3cd;
+            }
+            .explore-message-header {
+                font-weight: bold;
+                margin-bottom: 0.25rem;
+            }
+            .explore-message.user .explore-message-header {
+                color: #1976d2;
+            }
+            .explore-message.assistant .explore-message-header {
+                color: #555;
+            }
+
+            /* =================================================================
+               LOGGING
+               ================================================================= */
+            .log-output {
+                font-family: monospace;
+                font-size: small;
+                width: 100%;
+                resize: vertical;
+            }
+
+            /* =================================================================
+               STATS PANEL
+               ================================================================= */
             .stats-header {
                 display: flex;
                 justify-content: space-between;
@@ -182,7 +303,7 @@
                 color: #333;
             }
             .stats-section {
-                margin-bottom: 0.75rem;
+                margin-bottom: 1.25rem;
             }
             .stats-section h5 {
                 font-size: 0.75rem;
@@ -191,6 +312,17 @@
                 border-bottom: 1px solid #e0e0e0;
                 padding-bottom: 0.2rem;
             }
+            .stats-raw {
+                font-family: monospace;
+                font-size: 0.65rem;
+                background: #f8f9fa;
+                padding: 0.5rem;
+                overflow-x: auto;
+                white-space: pre-wrap;
+                overflow-y: auto;
+            }
+
+            /* Stats: Range Bars */
             .range-bar {
                 position: relative;
                 height: 24px;
@@ -251,6 +383,8 @@
                 color: #333;
                 transform: translateX(-50%);
             }
+
+            /* Stats: Tables */
             .stats-table {
                 width: 100%;
                 font-size: 0.7rem;
@@ -274,15 +408,8 @@
                 background: #4dabf7;
                 border-radius: 2px;
             }
-            .stats-raw {
-                font-family: monospace;
-                font-size: 0.65rem;
-                background: #f8f9fa;
-                padding: 0.5rem;
-                overflow-x: auto;
-                white-space: pre-wrap;
-                overflow-y: auto;
-            }
+
+            /* Stats: Well Types */
             .well-types {
                 display: flex;
                 gap: 0.5rem;
@@ -311,6 +438,8 @@
             .well-type-badge.deviated .count {
                 background: #2f9e44;
             }
+
+            /* Stats: Date Range */
             .date-range {
                 font-size: 0.7rem;
                 color: #555;
@@ -319,14 +448,144 @@
                 display: block;
                 margin: 0.2rem 0;
             }
+
+            /* Stats: Quality Bar */
+            .quality-bar {
+                position: relative;
+                height: 20px;
+                background: #e9ecef;
+                border-radius: 4px;
+                margin: 0.3rem 0;
+                cursor: help;
+            }
+            .quality-bar .quality-fill {
+                position: absolute;
+                height: 100%;
+                border-radius: 4px;
+                transition: width 0.3s ease;
+            }
+            .quality-bar.tight .quality-fill {
+                background: #51cf66;
+            }
+            .quality-bar.moderate .quality-fill {
+                background: #ffd43b;
+            }
+            .quality-bar.wide .quality-fill {
+                background: #ff6b6b;
+            }
+            .quality-bar .quality-label {
+                position: absolute;
+                right: 0.4rem;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 0.65rem;
+                color: #333;
+                font-weight: 500;
+            }
+
+            /* Stats: HHI Concentration */
+            .hhi-dots {
+                display: flex;
+                gap: 0.3rem;
+                align-items: center;
+                margin: 0.3rem 0;
+                cursor: help;
+            }
+            .hhi-dot {
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                border: 2px solid #1a73e8;
+                background: white;
+            }
+            .hhi-dot.filled {
+                background: #1a73e8;
+            }
+            .hhi-label {
+                font-size: 0.7rem;
+                color: #555;
+                margin-left: 0.5rem;
+            }
+
+            /* Stats: Vintage Sparkline */
+            .vintage-sparkline {
+                display: flex;
+                align-items: flex-end;
+                gap: 2px;
+                height: 40px;
+                margin: 0.3rem 0;
+            }
+            .vintage-bar {
+                flex: 1;
+                background: #4dabf7;
+                border-radius: 2px 2px 0 0;
+                min-width: 3px;
+                transition: background 0.2s;
+            }
+            .vintage-bar:hover {
+                background: #1a73e8;
+            }
+            .vintage-label {
+                font-size: 0.65rem;
+                color: #666;
+                margin-top: 0.2rem;
+            }
+
+            /* =================================================================
+               ANALYZE ACCORDION
+               ================================================================= */
+            .availability-legend {
+                font-size: small;
+            }
+            .availability-dot {
+                font-weight: bold;
+                font-size: 1.2em;
+            }
+            .availability-dot.high {
+                color: #22c55e;
+            }
+            .availability-dot.medium {
+                color: #f59e0b;
+            }
+            .availability-dot.low {
+                color: #ef4444;
+            }
+            .topic-option {
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+            .topic-description {
+                margin-left: 2rem;
+                font-size: small;
+                color: #666;
+            }
+
+            /* =================================================================
+               CONTENT CONTAINERS
+               ================================================================= */
+            .content-padding {
+                padding: 1rem;
+            }
+            .text-muted {
+                color: #666;
+                font-size: small;
+            }
+            .accordion-label {
+                font-size: 0.85rem;
+                color: var(--accent, #3a7bd5);
+            }
         </style>
         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     </head>
     <body>
+        <!-- =================================================================
+             LEFT PANEL: Configuration & Controls
+             ================================================================= -->
         <div class="left-panel">
+            <!-- INITIALIZE Accordion -->
             <details id="init-accordion" open>
                 <summary>INITIALIZE</summary>
-                <label>
+                <label class="accordion-label">
                     Filters
                     <textarea name="filters" rows="15">
 [
@@ -397,16 +656,20 @@
                 </label>
 
                 <form id="analysis-form">
-                    <label>
-                        Intent
-                        <select name="intent" id="intent-select">
-                            <option value="">Loading...</option>
-                        </select>
-                    </label>
-                    <div id="intent-description"></div>
-                    <div id="sections-container"></div>
+                    <!-- Hidden: Intent moved to FOCUS accordion -->
+                    <div style="display: none">
+                        <label>
+                            Intent
+                            <select name="intent" id="intent-select">
+                                <option value="">Loading...</option>
+                            </select>
+                        </label>
+                        <div id="intent-description"></div>
+                        <div id="sections-container"></div>
+                    </div>
 
-                    <div>
+                    <!-- Hidden: user feedback says Additional Context is confusing -->
+                    <div style="display: none">
                         <label>Additional Context</label>
                         <small>
                             Provide specific focus or constraints for the
@@ -444,6 +707,7 @@
                 </form>
             </details>
 
+            <!-- FOCUS Accordion -->
             <details id="focus-accordion" style="display: none">
                 <summary>FOCUS</summary>
                 <div id="focus-content">
@@ -454,17 +718,148 @@
                 </div>
             </details>
 
+            <!-- REPORT Accordion -->
+            <details id="report-accordion" style="display: none">
+                <summary>REPORT</summary>
+                <div id="intent-content">
+                    <label class="accordion-label">
+                        Guidance (does not filter)
+                        <small style="display: block; margin: 0 0 0.5rem">
+                            ex: "Compare laterals before and after 2020"
+                        </small>
+                        <textarea
+                            id="intent-additional-context"
+                            name="intent_additional_context"
+                            rows="2"
+                            placeholder="report guidance"
+                        ></textarea>
+                    </label>
+
+                    <label class="accordion-label">
+                        Intent
+                        <select id="report-accordion-select">
+                            <option value="">Loading...</option>
+                        </select>
+                    </label>
+                    <div
+                        id="report-accordion-description"
+                        style="
+                            font-size: small;
+                            color: #666;
+                            margin-bottom: 0.5rem;
+                        "
+                    ></div>
+                    <div id="report-accordion-sections-container"></div>
+
+                    <label class="accordion-label" style="margin-top: 0.75rem">
+                        Creativity (conserve-o-meter)
+                        <input
+                            type="range"
+                            id="creativity-slider"
+                            min="1"
+                            max="5"
+                            step="1"
+                            value="3"
+                            style="margin: 0.25rem 0 0"
+                            oninput="updateCreativityLabel(this.value)"
+                        />
+                        <div
+                            style="
+                                display: flex;
+                                justify-content: space-between;
+                                font-size: 0.7rem;
+                                color: #999;
+                                margin-top: -0.25rem;
+                            "
+                        >
+                            <span>conservative</span>
+                            <span>creative</span>
+                        </div>
+                        <div
+                            id="creativity-label"
+                            style="
+                                text-align: center;
+                                font-size: 0.8rem;
+                                font-weight: 600;
+                                color: var(--accent, #3a7bd5);
+                                margin-top: 0.1rem;
+                            "
+                        >
+                            Balanced
+                        </div>
+                    </label>
+
+                    <button
+                        id="intent-continue-btn"
+                        style="width: 100%; margin-top: 1rem"
+                        onclick="submitContinue()"
+                    >
+                        Continue to Report
+                    </button>
+                </div>
+            </details>
+
+            <!-- ANALYZE Accordion -->
             <details id="analyze-accordion" style="display: none">
                 <summary>ANALYZE</summary>
                 <div id="analyze-content">
                     <p>Analysis options will appear here.</p>
                 </div>
             </details>
+
+            <!-- SESSION Accordion -->
+            <details id="session-accordion" style="display: none">
+                <summary>SESSIONS</summary>
+                <div id="session-content">
+                    <div style="margin-bottom: 0.5rem">
+                        <input
+                            type="text"
+                            id="session-name-input"
+                            placeholder="Session name..."
+                            style="width: 100%; margin-bottom: 0.5rem"
+                        />
+                        <button
+                            onclick="saveCurrentSession()"
+                            class="secondary"
+                            style="width: 100%"
+                        >
+                            Save Session
+                        </button>
+                    </div>
+                    <hr />
+                    <div id="session-list" style="font-size: small">
+                        <p class="text-muted">No saved sessions</p>
+                    </div>
+                </div>
+            </details>
+
+            <!-- EXPORT Section -->
+            <div
+                id="export-section"
+                style="display: none; margin-top: auto; padding-top: 1rem"
+            >
+                <button
+                    id="export-excel-btn"
+                    class="secondary"
+                    onclick="startExcelExport()"
+                    style="width: 100%"
+                >
+                    Download Wells to Excel
+                </button>
+                <div
+                    id="export-status"
+                    style="margin-top: 0.5rem; font-size: small; color: #666"
+                ></div>
+            </div>
         </div>
+
+        <!-- =================================================================
+             CENTER PANEL: Main Content Tabs
+             ================================================================= -->
         <div class="center-panel">
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('geostat')">
-                    GEOSTAT
+                <button class="tab active" onclick="switchTab('geostats')">
+                    GEOSTATS
                 </button>
                 <button
                     id="report-tab-btn"
@@ -483,87 +878,78 @@
                     EXPLORE
                 </button>
             </div>
-            <div id="geostat-tab" class="tab-content active">
-                <p>Geostat analysis will appear here...</p>
+
+            <!-- GEOSTATS Tab -->
+            <div id="geostats-tab" class="tab-content active">
+                <p>Geostats analysis will appear here...</p>
             </div>
+
+            <!-- REPORT Tab -->
             <div id="report-tab" class="tab-content">
                 <p>Report will appear here...</p>
             </div>
-            <div id="explore-tab" class="tab-content">
+
+            <!-- EXPLORE Tab -->
+            <div id="explore-tab" class="tab-content explore-container">
                 <button
                     id="explore-export-btn"
                     onclick="exportExploreHistory()"
                     class="secondary export-btn"
+                    style="display: none"
                 >
                     Export
                 </button>
-                <div
-                    id="explore-header"
-                    style="
-                        padding: 1rem;
-                        background: #f5f5f5;
-                        border-bottom: 1px solid #ddd;
-                    "
-                >
-                    <h4 style="margin: 0">Explore your filtered dataset</h4>
+                <div class="explore-header">
+                    <h4>Explore your filtered dataset</h4>
                 </div>
-                <div
-                    id="explore-messages"
-                    style="padding: 1rem; max-height: 60vh; overflow-y: auto"
-                >
+                <div id="explore-messages" class="explore-messages">
                     <!-- Messages will appear here -->
                 </div>
-                <div
-                    style="
-                        padding: 1rem;
-                        border-top: 1px solid #ddd;
-                        background: #fafafa;
-                    "
-                >
-                    <div style="display: flex; gap: 0.5rem">
+                <div class="explore-input-container">
+                    <div class="explore-input-wrapper">
                         <textarea
                             id="explore-input"
+                            class="explore-input"
                             placeholder="Ask a question about the data..."
-                            rows="2"
-                            style="flex: 1; resize: vertical"
+                            rows="1"
                         ></textarea>
-                        <button
-                            id="explore-send"
-                            onclick="sendExploreQuery()"
-                            disabled
-                        >
-                            Send
-                        </button>
+                        <div id="explore-send" class="explore-send">
+                            <!-- Spinner will appear here when sending -->
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- =================================================================
+             RIGHT PANEL: Logging & Stats
+             ================================================================= -->
         <div class="right-panel">
+            <!-- LOGGING Accordion -->
             <details id="logging-accordion" open>
                 <summary>LOGGING</summary>
                 <textarea
                     id="log-output"
+                    class="log-output"
                     readonly
                     rows="30"
-                    style="
-                        font-family: monospace;
-                        font-size: small;
-                        width: 100%;
-                        resize: vertical;
-                    "
                 ></textarea>
             </details>
 
-            <details id="profile-accordion">
+            <!-- STATS Accordion -->
+            <details id="profile-accordion" style="display: none">
                 <summary>STATS</summary>
                 <div id="stats-content">
-                    <p style="color: #666; font-size: small">
+                    <p class="text-muted">
                         Stats will appear after analysis...
                     </p>
                 </div>
             </details>
         </div>
 
+        <!-- =================================================================
+             MODAL: Confirm Dialog (unused but kept for potential future use)
+             ================================================================= -->
         <dialog id="confirm-modal">
             <article>
                 <header>
@@ -585,49 +971,364 @@
         </dialog>
 
         <script>
+            // =================================================================
+            // GLOBAL STATE
+            // =================================================================
             let intentsData = [];
             let currentTaskId = null;
             let currentDeepDiveOptions = [];
             let currentRecommendedTopics = [];
             let exploreHistory = [];
-            const API_URL =
-                "https://dev.geologic.com/api/functions/gemini_api/v3";
+            let pollingInterval = null;
+            let lastLogCount = 0;
+            let messageIdCounter = 0;
+            let rawProfileStats = {};
 
-            // Tab switching
-            function switchTab(tabName) {
-                const tabs = document.querySelectorAll(".tab");
-                const contents = document.querySelectorAll(".tab-content");
+            const API_URL = "https://dev.geologic.com/api/functions/ai/v1";
 
-                tabs.forEach((tab) => tab.classList.remove("active"));
-                contents.forEach((content) =>
-                    content.classList.remove("active"),
+            // Session storage keys
+            const SESSION_STORAGE_KEY = "geoai_sessions";
+            const CURRENT_SESSION_KEY = "geoai_current_session";
+
+            // =================================================================
+            // SESSION PERSISTENCE
+            // =================================================================
+
+            function generateSessionId() {
+                return (
+                    "sess_" +
+                    Date.now() +
+                    "_" +
+                    Math.random().toString(36).substr(2, 9)
                 );
-
-                // Find the tab button for this tabName and make it active
-                tabs.forEach((tab) => {
-                    if (
-                        tab.textContent.trim().toLowerCase() ===
-                        tabName.toLowerCase()
-                    ) {
-                        tab.classList.add("active");
-                    }
-                });
-                document
-                    .getElementById(tabName + "-tab")
-                    .classList.add("active");
             }
 
-            // Load intents on page load from API
+            function getAllSessions() {
+                const stored = localStorage.getItem(SESSION_STORAGE_KEY);
+                return stored ? JSON.parse(stored) : {};
+            }
+
+            function saveSession(session) {
+                const sessions = getAllSessions();
+                session.last_accessed = new Date().toISOString();
+                sessions[session.session_id] = session;
+                localStorage.setItem(
+                    SESSION_STORAGE_KEY,
+                    JSON.stringify(sessions),
+                );
+                localStorage.setItem(CURRENT_SESSION_KEY, session.session_id);
+            }
+
+            function loadSession(sessionId) {
+                const sessions = getAllSessions();
+                return sessions[sessionId] || null;
+            }
+
+            function deleteSession(sessionId) {
+                const sessions = getAllSessions();
+                delete sessions[sessionId];
+                localStorage.setItem(
+                    SESSION_STORAGE_KEY,
+                    JSON.stringify(sessions),
+                );
+            }
+
+            function getCurrentSessionId() {
+                return localStorage.getItem(CURRENT_SESSION_KEY);
+            }
+
+            // Build session object from current UI state
+            function captureCurrentSession(name) {
+                const filters = document.querySelector(
+                    'textarea[name="filters"]',
+                ).value;
+                const intent = document.getElementById("intent-select").value;
+                const sections = Array.from(
+                    document.querySelectorAll('input[name="section"]:checked'),
+                ).map((cb) => cb.value);
+                const additionalContext = document.querySelector(
+                    'textarea[name="additional_context"]',
+                ).value;
+
+                return {
+                    session_id: generateSessionId(),
+                    name: name || `Session ${new Date().toLocaleDateString()}`,
+                    created_at: new Date().toISOString(),
+                    last_accessed: new Date().toISOString(),
+                    recipe: {
+                        filters: filters,
+                        intent: intent,
+                        intent_overrides: { sections: { include: sections } },
+                        additional_context: additionalContext,
+                        focus_sequence: [],
+                        followup_topics: [],
+                    },
+                    explore_history: [],
+                    cache: {
+                        task_id: currentTaskId,
+                        captured_at: new Date().toISOString(),
+                    },
+                };
+            }
+
+            // Restore UI state from a session
+            function restoreSession(session) {
+                if (!session || !session.recipe) return;
+
+                const recipe = session.recipe;
+
+                // Restore filters
+                document.querySelector('textarea[name="filters"]').value =
+                    recipe.filters;
+
+                // Restore intent (trigger change event to load sections)
+                const intentSelect = document.getElementById("intent-select");
+                intentSelect.value = recipe.intent;
+                intentSelect.dispatchEvent(new Event("change"));
+
+                // Restore additional context
+                document.querySelector(
+                    'textarea[name="additional_context"]',
+                ).value = recipe.additional_context || "";
+
+                // Restore section checkboxes after a brief delay (for dynamic loading)
+                setTimeout(() => {
+                    const includeSections =
+                        recipe.intent_overrides?.sections?.include || [];
+                    document
+                        .querySelectorAll('input[name="section"]')
+                        .forEach((cb) => {
+                            cb.checked = includeSections.includes(cb.value);
+                        });
+                }, 100);
+
+                // Restore explore history to global
+                exploreHistory = session.explore_history || [];
+
+                // Store current session reference
+                localStorage.setItem(CURRENT_SESSION_KEY, session.session_id);
+
+                appendLog("Restored session: " + session.name);
+            }
+
+            // Update current session with latest state
+            function updateCurrentSession() {
+                const sessionId = getCurrentSessionId();
+                if (!sessionId) return;
+
+                const session = loadSession(sessionId);
+                if (!session) return;
+
+                // Update cache
+                session.cache.task_id = currentTaskId;
+
+                // Update explore history
+                session.explore_history = exploreHistory;
+
+                saveSession(session);
+            }
+
+            // Add focus step to current session
+            function recordFocusStep(prompt) {
+                const sessionId = getCurrentSessionId();
+                if (!sessionId) return;
+
+                const session = loadSession(sessionId);
+                if (!session) return;
+
+                session.recipe.focus_sequence.push({
+                    round: session.recipe.focus_sequence.length + 1,
+                    prompt: prompt,
+                    timestamp: new Date().toISOString(),
+                });
+
+                saveSession(session);
+            }
+
+            // Add followup topic to current session
+            function recordFollowupTopic(topic) {
+                const sessionId = getCurrentSessionId();
+                if (!sessionId) return;
+
+                const session = loadSession(sessionId);
+                if (!session) return;
+
+                session.recipe.followup_topics.push(topic);
+                saveSession(session);
+            }
+
+            // =================================================================
+            // SESSION MANAGER UI
+            // =================================================================
+
+            function saveCurrentSession() {
+                const nameInput = document.getElementById("session-name-input");
+                const name =
+                    nameInput.value.trim() ||
+                    `Session ${new Date().toLocaleDateString()}`;
+
+                const session = captureCurrentSession(name);
+                saveSession(session);
+
+                nameInput.value = "";
+                renderSessionList();
+                appendLog("Saved session: " + name);
+            }
+
+            function renderSessionList() {
+                const container = document.getElementById("session-list");
+                const sessions = getAllSessions();
+                const sessionIds = Object.keys(sessions).sort((a, b) => {
+                    return (
+                        new Date(sessions[b].last_accessed) -
+                        new Date(sessions[a].last_accessed)
+                    );
+                });
+
+                if (sessionIds.length === 0) {
+                    container.innerHTML =
+                        '<p class="text-muted">No saved sessions</p>';
+                    return;
+                }
+
+                let html = "";
+                sessionIds.forEach((id) => {
+                    const s = sessions[id];
+                    const date = new Date(s.last_accessed).toLocaleDateString();
+                    const hasRecipe =
+                        s.recipe?.focus_sequence?.length > 0 ||
+                        s.recipe?.followup_topics?.length > 0 ||
+                        s.explore_history?.length > 0;
+                    html += `
+                        <div style="padding: 0.5rem; border-bottom: 1px solid #eee;">
+                            <div style="font-weight: bold;">${escapeHtml(s.name)}</div>
+                            <div style="color: #666; font-size: 0.8em;">Last used: ${date}</div>
+                            <div style="margin-top: 0.25rem;">
+                                <button onclick="loadAndRestoreSession('${id}')"
+                                        class="secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8em;">
+                                    Load
+                                </button>
+                                <button onclick="showSessionRecipe('${id}')"
+                                        style="padding: 0.2rem 0.5rem; font-size: 0.8em;"
+                                        ${hasRecipe ? "" : "disabled"}>
+                                    Recipe
+                                </button>
+                                <button onclick="confirmDeleteSession('${id}')"
+                                        class="secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8em;">
+                                    Delete
+                                </button>
+                            </div>
+                            <div id="recipe-${id}" style="display: none; margin-top: 0.5rem; padding: 0.5rem; background: #f5f5f5; font-size: 0.75em;"></div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            }
+
+            function loadAndRestoreSession(sessionId) {
+                const session = loadSession(sessionId);
+                if (session) {
+                    restoreSession(session);
+                    appendLog(
+                        "Loaded session - click 'Send to AI' to run with fresh data",
+                    );
+                }
+            }
+
+            function showSessionRecipe(sessionId) {
+                const session = loadSession(sessionId);
+                if (!session) return;
+
+                const recipeDiv = document.getElementById(
+                    `recipe-${sessionId}`,
+                );
+                if (!recipeDiv) return;
+
+                // Toggle visibility
+                if (recipeDiv.style.display !== "none") {
+                    recipeDiv.style.display = "none";
+                    return;
+                }
+
+                let html = "";
+                const recipe = session.recipe || {};
+
+                // Show intent and additional context
+                if (recipe.intent) {
+                    html += `<div><strong>Intent:</strong> ${escapeHtml(recipe.intent)}</div>`;
+                }
+                if (recipe.additional_context) {
+                    html += `<div><strong>Context:</strong> ${escapeHtml(recipe.additional_context)}</div>`;
+                }
+
+                // Show focus sequence
+                if (recipe.focus_sequence && recipe.focus_sequence.length > 0) {
+                    html += `<div style="margin-top: 0.5rem;"><strong>Focus Steps:</strong></div>`;
+                    html +=
+                        "<ol style='margin: 0.25rem 0 0 1.25rem; padding: 0;'>";
+                    recipe.focus_sequence.forEach((step) => {
+                        html += `<li>${escapeHtml(step.prompt)}</li>`;
+                    });
+                    html += "</ol>";
+                }
+
+                // Show followup topics
+                if (
+                    recipe.followup_topics &&
+                    recipe.followup_topics.length > 0
+                ) {
+                    html += `<div style="margin-top: 0.5rem;"><strong>Followup Topics:</strong></div>`;
+                    html +=
+                        "<ul style='margin: 0.25rem 0 0 1.25rem; padding: 0;'>";
+                    recipe.followup_topics.forEach((topic) => {
+                        html += `<li>${escapeHtml(topic)}</li>`;
+                    });
+                    html += "</ul>";
+                }
+
+                // Show explore history summary
+                if (
+                    session.explore_history &&
+                    session.explore_history.length > 0
+                ) {
+                    const questionCount = session.explore_history.filter(
+                        (h) => h.role === "user",
+                    ).length;
+                    html += `<div style="margin-top: 0.5rem;"><strong>Explore:</strong> ${questionCount} question(s)</div>`;
+                }
+
+                if (!html) {
+                    html = "<em>No recipe steps recorded</em>";
+                }
+
+                recipeDiv.innerHTML = html;
+                recipeDiv.style.display = "block";
+            }
+
+            function confirmDeleteSession(sessionId) {
+                const session = loadSession(sessionId);
+                if (session && confirm(`Delete session "${session.name}"?`)) {
+                    deleteSession(sessionId);
+                    renderSessionList();
+                    appendLog("Deleted session");
+                }
+            }
+
+            // =================================================================
+            // INITIALIZATION
+            // =================================================================
+
+            // Load intents from API on page load
             fetch(`${API_URL}/get_intent_ui`)
                 .then((response) => response.json())
                 .then((response) => {
-                    // API wraps response in {data: {...}}
                     const data = response.data || response;
                     intentsData = data.intents || [];
                     const select = document.getElementById("intent-select");
                     select.innerHTML = "";
 
-                    intentsData.forEach((intent, index) => {
+                    intentsData.forEach((intent) => {
                         const option = document.createElement("option");
                         option.value = intent.name;
                         option.textContent = intent.name
@@ -636,15 +1337,18 @@
                         select.appendChild(option);
                     });
 
-                    // Trigger change to load first intent (or default)
+                    // Set default intent
                     if (intentsData.length > 0) {
-                        // Set to default intent if available
                         const defaultIntent =
                             data.default_intent || intentsData[0].name;
                         select.value = defaultIntent;
                         select.dispatchEvent(new Event("change"));
                     }
                 });
+
+            // =================================================================
+            // EVENT HANDLERS
+            // =================================================================
 
             // Handle intent selection change
             document
@@ -684,6 +1388,156 @@
                     });
                 });
 
+            // Show REPORT accordion when "Next" is clicked in FOCUS
+            function showReportAccordion() {
+                closeAccordion("focus");
+                openAccordion("report");
+                populateReportAccordionSelector();
+            }
+
+            // Populate intent selector in REPORT accordion
+            function populateReportAccordionSelector() {
+                const select = document.getElementById(
+                    "report-accordion-select",
+                );
+                if (!select) {
+                    console.error("Intent accordion select element not found");
+                    return;
+                }
+                if (intentsData.length === 0) {
+                    console.warn(
+                        "intentsData is empty, cannot populate intent selector",
+                    );
+                    return;
+                }
+
+                // Avoid adding duplicate event listeners
+                if (select.dataset.populated === "true") {
+                    return;
+                }
+                select.dataset.populated = "true";
+
+                select.innerHTML = "";
+                intentsData.forEach((intent) => {
+                    const option = document.createElement("option");
+                    option.value = intent.name;
+                    option.textContent = intent.name
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (c) => c.toUpperCase());
+                    select.appendChild(option);
+                });
+
+                // Set default
+                const defaultIntent =
+                    intentsData.find((i) => i.name === "geologist") ||
+                    intentsData[0];
+                if (defaultIntent) {
+                    select.value = defaultIntent.name;
+                    updateReportAccordionUI(defaultIntent);
+                }
+
+                // Handle change
+                select.addEventListener("change", function (e) {
+                    const selectedIntent = intentsData.find(
+                        (i) => i.name === e.target.value,
+                    );
+                    if (selectedIntent) {
+                        updateReportAccordionUI(selectedIntent);
+                    }
+                });
+            }
+
+            // Update intent description and sections in REPORT accordion
+            function updateReportAccordionUI(intent) {
+                // Update description
+                const descEl = document.getElementById(
+                    "report-accordion-description",
+                );
+                if (descEl) {
+                    descEl.textContent = intent.description;
+                }
+
+                // Update sections checkboxes
+                const sectionsContainer = document.getElementById(
+                    "report-accordion-sections-container",
+                );
+                if (!sectionsContainer) return;
+
+                sectionsContainer.innerHTML =
+                    '<fieldset><legend class="accordion-label">Sections to Include</legend></fieldset>';
+                const fieldset = sectionsContainer.querySelector("fieldset");
+
+                const sections = intent.available_sections || [];
+                sections.forEach((section) => {
+                    const label = document.createElement("label");
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.name = "intent-section";
+                    checkbox.value = section.id;
+                    checkbox.checked = true;
+
+                    label.appendChild(checkbox);
+                    label.appendChild(
+                        document.createTextNode(" " + section.label),
+                    );
+                    fieldset.appendChild(label);
+                });
+            }
+
+            const CREATIVITY_LABELS = {
+                1: "Deterministic",
+                2: "Conservative",
+                3: "Balanced",
+                4: "Expressive",
+                5: "Creative",
+            };
+
+            function updateCreativityLabel(value) {
+                const label = document.getElementById("creativity-label");
+                if (label) {
+                    label.textContent = CREATIVITY_LABELS[value] || "Balanced";
+                }
+            }
+
+            // Get selected intent, sections, and additional context from REPORT accordion
+            function getReportAccordionData() {
+                const intentSelect = document.getElementById(
+                    "report-accordion-select",
+                );
+                const intent = intentSelect ? intentSelect.value : "geologist";
+
+                const sectionCheckboxes = document.querySelectorAll(
+                    'input[name="intent-section"]:checked',
+                );
+                const sections = Array.from(sectionCheckboxes).map(
+                    (cb) => cb.value,
+                );
+
+                const additionalContextEl = document.getElementById(
+                    "intent-additional-context",
+                );
+                const additionalContext = additionalContextEl
+                    ? additionalContextEl.value.trim()
+                    : "";
+
+                const creativitySlider =
+                    document.getElementById("creativity-slider");
+                const creativityLevel = creativitySlider
+                    ? parseInt(creativitySlider.value, 10)
+                    : 3;
+
+                return {
+                    intent: intent,
+                    intent_overrides: {
+                        sections: {
+                            include: sections,
+                        },
+                    },
+                    additional_context: additionalContext || null,
+                    creativity_level: creativityLevel,
+                };
+            }
+
             // Handle form submission
             document
                 .getElementById("analysis-form")
@@ -691,57 +1545,82 @@
                     e.preventDefault();
 
                     const formData = new FormData(e.target);
-
-                    // Build JSON payload
-                    const payload = {
-                        filters: JSON.parse(
+                    let filters;
+                    try {
+                        filters = JSON.parse(
                             document.querySelector('textarea[name="filters"]')
                                 .value,
-                        ),
-                        intent: formData.get("intent"),
-                        intent_overrides: {
-                            sections: {
-                                include: formData.getAll("section"),
-                            },
-                        },
-                        additional_context: formData.get("additional_context"),
+                        );
+                    } catch (parseError) {
+                        appendLog(
+                            "ERROR: Invalid JSON in filters - " +
+                                parseError.message,
+                        );
+                        return;
+                    }
+                    const payload = {
+                        filters: filters,
+                        // Intent is no longer sent from INITIALIZE - will use default
                         async_mode: formData.get("async_mode") === "true",
                         return_data_type: formData.get("return_data_type"),
                     };
 
-                    // Log payload to console
                     console.log("Sending payload:", payload);
 
-                    // Reset polling state and show spinner
+                    // Reset state and show loading spinner
                     lastLogCount = 0;
                     document.getElementById("log-output").value = "";
-                    document.getElementById("geostat-tab").innerHTML =
+                    document.getElementById("geostats-tab").innerHTML =
                         '<div class="spinner"></div><p style="text-align: center;">Waiting for analysis...</p>';
 
-                    // Submit directly
                     sendInitialRequest(payload);
                 });
 
-            // Polling state
-            let pollingInterval = null;
-            let lastLogCount = 0;
+            // =================================================================
+            // TAB MANAGEMENT
+            // =================================================================
+
+            function switchTab(tabName) {
+                const tabs = document.querySelectorAll(".tab");
+                const contents = document.querySelectorAll(".tab-content");
+
+                tabs.forEach((tab) => tab.classList.remove("active"));
+                contents.forEach((content) =>
+                    content.classList.remove("active"),
+                );
+
+                // Find and activate the correct tab button
+                tabs.forEach((tab) => {
+                    if (
+                        tab.textContent.trim().toLowerCase() ===
+                        tabName.toLowerCase()
+                    ) {
+                        tab.classList.add("active");
+                    }
+                });
+                document
+                    .getElementById(tabName + "-tab")
+                    .classList.add("active");
+            }
+
+            // =================================================================
+            // API REQUESTS
+            // =================================================================
 
             function sendInitialRequest(payload) {
-                // POST to API
                 fetch(API_URL, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload),
                 })
                     .then((response) => response.json())
-                    .then((data) => {
+                    .then((response) => {
+                        const data = response.data || response;
                         if (data.task_id) {
-                            // Start polling for status (don't close INIT yet)
                             startPolling(data.task_id);
+                        } else if (data.error) {
+                            appendLog("ERROR: " + data.error);
                         } else {
-                            // Display response in center panel
                             document.querySelector(".center-panel").innerHTML =
                                 '<h2>API Response</h2><pre style="font-size: small; white-space: pre-wrap;">' +
                                 JSON.stringify(data, null, 2) +
@@ -752,6 +1631,278 @@
                         appendLog("ERROR: " + error.message);
                     });
             }
+
+            function submitFocus() {
+                const focusPrompt = document
+                    .getElementById("focus-prompt")
+                    .value.trim();
+                if (!focusPrompt) return;
+
+                appendLog("Applying focus: " + focusPrompt);
+                recordFocusStep(focusPrompt);
+                markGeostatsOutdated();
+
+                // Focus does not include intent - that comes from REPORT accordion on continue
+                const payload = {
+                    task_id: currentTaskId,
+                    action: "focus",
+                    focus_prompt: focusPrompt,
+                    async_mode: true,
+                };
+
+                lastLogCount = 0;
+
+                fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                })
+                    .then((response) => response.json())
+                    .then((response) => {
+                        const data = response.data || response;
+                        if (data.task_id) {
+                            startPolling(data.task_id);
+                        } else if (data.error) {
+                            appendLog("ERROR: " + data.error);
+                        } else {
+                            appendLog("Error: No task_id returned");
+                        }
+                    })
+                    .catch((error) => {
+                        appendLog("ERROR: " + error.message);
+                    });
+            }
+
+            function submitContinue() {
+                appendLog("Continuing to synthesis");
+                markGeostatsOutdated();
+
+                // Get intent, sections, and additional context from REPORT accordion
+                const intentData = getReportAccordionData();
+
+                const payload = {
+                    task_id: currentTaskId,
+                    action: "continue",
+                    intent: intentData.intent,
+                    intent_overrides: intentData.intent_overrides,
+                    additional_context: intentData.additional_context,
+                    creativity_level: intentData.creativity_level,
+                    async_mode: true,
+                };
+
+                appendLog(
+                    `Creativity: ${CREATIVITY_LABELS[intentData.creativity_level] || "Balanced"} (${intentData.creativity_level}/5)`,
+                );
+
+                lastLogCount = 0;
+
+                fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                })
+                    .then((response) => response.json())
+                    .then((response) => {
+                        const data = response.data || response;
+                        if (data.task_id) {
+                            startPolling(data.task_id);
+                        } else if (data.error) {
+                            appendLog("ERROR: " + data.error);
+                        } else {
+                            appendLog("Error: No task_id returned");
+                        }
+                    })
+                    .catch((error) => {
+                        appendLog("ERROR: " + error.message);
+                    });
+            }
+
+            // =================================================================
+            // POLLING
+            // =================================================================
+
+            const POLL_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+            let pollingTimer = null;
+
+            function startPolling(taskId) {
+                currentTaskId = taskId;
+                appendLog("Task started: " + taskId);
+
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                }
+                if (pollingTimer) {
+                    clearTimeout(pollingTimer);
+                }
+
+                pollingTimer = setTimeout(() => {
+                    stopPolling();
+                    appendLog("ERROR: Polling timed out after 10 minutes");
+                }, POLL_TIMEOUT_MS);
+
+                pollingInterval = setInterval(() => {
+                    fetch(`${API_URL}/status/${taskId}`)
+                        .then((response) => response.json())
+                        .then((response) => {
+                            console.log("Poll response:", response);
+                            const data = response.data || response;
+                            const logs = data.logs || [];
+
+                            // Append new log messages
+                            for (let i = lastLogCount; i < logs.length; i++) {
+                                const log = logs[i];
+                                const timestamp = log.timestamp
+                                    ? new Date(
+                                          log.timestamp,
+                                      ).toLocaleTimeString("en-US", {
+                                          hour12: false,
+                                      })
+                                    : new Date().toLocaleTimeString("en-US", {
+                                          hour12: false,
+                                      });
+                                appendLog(log.message, timestamp);
+                            }
+                            lastLogCount = logs.length;
+
+                            // Display geostat_analysis if available
+                            if (data.geostat_analysis) {
+                                updateGeostatsTab(
+                                    data.geostat_analysis,
+                                    data.status === "awaiting_focus",
+                                );
+                            }
+
+                            // Check for focus checkpoint
+                            if (data.status === "awaiting_focus") {
+                                stopPolling();
+                                appendLog("Focus checkpoint reached");
+                                openAccordion("focus");
+                                closeAccordion("init");
+                                populateFocusForm(data);
+                            }
+
+                            // Check for completion
+                            const status = data.status;
+                            if (
+                                status === "completed" ||
+                                status === "awaiting_selection"
+                            ) {
+                                stopPolling();
+                                appendLog(
+                                    "Analysis complete - status: " + status,
+                                );
+                                console.log("Final status object:", data);
+                                handleSynthesisComplete(data);
+                            } else if (
+                                status === "failed" ||
+                                status === "no_data"
+                            ) {
+                                stopPolling();
+                                appendLog(
+                                    "Task finished with status: " + status,
+                                );
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Polling error:", error);
+                            stopPolling();
+                            appendLog("Polling failed: " + error.message);
+                        });
+                }, 3000);
+            }
+
+            function stopPolling() {
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
+                }
+                if (pollingTimer) {
+                    clearTimeout(pollingTimer);
+                    pollingTimer = null;
+                }
+            }
+
+            // =================================================================
+            // UI HELPERS: Accordions
+            // =================================================================
+
+            function openAccordion(name) {
+                const accordion = document.getElementById(name + "-accordion");
+                if (accordion) {
+                    accordion.style.display = "";
+                    accordion.open = true;
+                }
+            }
+
+            function closeAccordion(name) {
+                const accordion = document.getElementById(name + "-accordion");
+                if (accordion) {
+                    accordion.open = false;
+                }
+            }
+
+            // =================================================================
+            // UI HELPERS: Loading States
+            // =================================================================
+
+            function markGeostatsOutdated() {
+                const geostatsTab = document.getElementById("geostats-tab");
+                const geostatsDiv = geostatsTab.querySelector("div");
+                if (geostatsDiv) {
+                    geostatsDiv.classList.add("outdated");
+                }
+                disableExportButtons();
+                showTabSpinner();
+            }
+
+            function markReportOutdated() {
+                const reportTab = document.getElementById("report-tab");
+                const reportDiv = reportTab.querySelector("div");
+                if (reportDiv) {
+                    reportDiv.classList.add("outdated");
+                    disableExportButtons();
+                    showTabSpinner();
+                }
+            }
+
+            function clearOutdatedState(tabId) {
+                const tab = document.getElementById(tabId);
+                const div = tab.querySelector("div");
+                if (div) {
+                    div.classList.remove("outdated");
+                }
+                removeTabSpinner();
+                enableExportButtons();
+            }
+
+            function showTabSpinner() {
+                const tabsContainer = document.querySelector(".tabs");
+                if (!tabsContainer.querySelector(".spinner")) {
+                    const spinner = document.createElement("div");
+                    spinner.className = "spinner";
+                    spinner.id = "tab-spinner";
+                    tabsContainer.appendChild(spinner);
+                }
+            }
+
+            function removeTabSpinner() {
+                const spinner = document.getElementById("tab-spinner");
+                if (spinner) spinner.remove();
+            }
+
+            function disableExportButtons() {
+                const buttons = document.querySelectorAll(".export-btn");
+                buttons.forEach((btn) => (btn.disabled = true));
+            }
+
+            function enableExportButtons() {
+                const buttons = document.querySelectorAll(".export-btn");
+                buttons.forEach((btn) => (btn.disabled = false));
+            }
+
+            // =================================================================
+            // UI HELPERS: Logging
+            // =================================================================
 
             function appendLog(message, timestamp) {
                 const logOutput = document.getElementById("log-output");
@@ -764,141 +1915,74 @@
                 logOutput.scrollTop = logOutput.scrollHeight;
             }
 
-            function startPolling(taskId) {
-                currentTaskId = taskId;
-                appendLog("Task started: " + taskId);
+            // =================================================================
+            // UI HELPERS: Formatting
+            // =================================================================
 
-                // Clear any existing interval
-                if (pollingInterval) {
-                    clearInterval(pollingInterval);
-                }
-
-                // Poll every 3 seconds
-                pollingInterval = setInterval(() => {
-                    fetch(`${API_URL}/status/${taskId}`)
-                        .then((response) => response.json())
-                        .then((response) => {
-                            console.log("Poll response:", response);
-                            const data = response.data || response;
-                            const logs = data.logs || [];
-
-                            // Append only new log messages
-                            for (let i = lastLogCount; i < logs.length; i++) {
-                                const log = logs[i];
-                                let timestamp;
-                                if (log.timestamp) {
-                                    timestamp = new Date(
-                                        log.timestamp,
-                                    ).toLocaleTimeString("en-US", {
-                                        hour12: false,
-                                    });
-                                } else {
-                                    timestamp = new Date().toLocaleTimeString(
-                                        "en-US",
-                                        {
-                                            hour12: false,
-                                        },
-                                    );
-                                }
-                                appendLog(log.message, timestamp);
-                            }
-                            lastLogCount = logs.length;
-
-                            // Check for focus checkpoint with geostat_analysis
-                            const latestMessage =
-                                logs.length > 0
-                                    ? logs[logs.length - 1].message
-                                    : "";
-                            // Display geostat_analysis if available
-                            if (data.geostat_analysis) {
-                                const geostatTab =
-                                    document.getElementById("geostat-tab");
-                                const title =
-                                    data.status === "awaiting_focus"
-                                        ? "<h2>Focus Summary</h2>"
-                                        : "<h2>Geostat Analysis</h2>";
-                                geostatTab.innerHTML =
-                                    '<div style="padding: 1rem;">' +
-                                    title +
-                                    marked.parse(data.geostat_analysis) +
-                                    "</div>";
-
-                                // Remove outdated class and spinner if they exist (new content arrived)
-                                geostatTab
-                                    .querySelector("div")
-                                    .classList.remove("outdated");
-                                const tabsContainer =
-                                    document.querySelector(".tabs");
-                                const spinner =
-                                    tabsContainer.querySelector(".spinner");
-                                if (spinner) spinner.remove();
-                            }
-
-                            if (
-                                latestMessage === "Focus checkpoint reached" &&
-                                data.status === "awaiting_focus"
-                            ) {
-                                // Stop polling
-                                clearInterval(pollingInterval);
-                                pollingInterval = null;
-
-                                appendLog("Focus checkpoint reached");
-
-                                // Close INIT accordion, open FOCUS accordion
-                                document.getElementById("init-accordion").open =
-                                    false;
-                                document.getElementById(
-                                    "focus-accordion",
-                                ).open = true;
-
-                                // Populate FOCUS accordion
-                                populateFocusForm(data);
-                            }
-
-                            // Check if task is complete (terminal states)
-                            const status = data.status;
-                            if (
-                                status === "completed" ||
-                                status === "awaiting_selection"
-                            ) {
-                                clearInterval(pollingInterval);
-                                pollingInterval = null;
-                                appendLog(
-                                    "Analysis complete - status: " + status,
-                                );
-                                console.log("Final status object:", data);
-
-                                // Handle synthesis completion
-                                handleSynthesisComplete(data);
-                            } else if (
-                                status === "failed" ||
-                                status === "no_data"
-                            ) {
-                                clearInterval(pollingInterval);
-                                pollingInterval = null;
-                                appendLog(
-                                    "Task finished with status: " + status,
-                                );
-                            }
-                        })
-                        .catch((error) => {
-                            console.error("Polling error:", error);
-                            clearInterval(pollingInterval);
-                            pollingInterval = null;
-                            appendLog("Polling failed: " + error.message);
-                        });
-                }, 3000);
+            function formatNumber(num) {
+                if (num == null) return "-";
+                if (typeof num !== "number") return num;
+                if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+                if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+                return num.toLocaleString();
             }
+
+            function escapeHtml(text) {
+                const div = document.createElement("div");
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function getAvailabilityColor(availability) {
+                const level = (availability || "").toUpperCase();
+                if (level === "HIGH") return "#22c55e";
+                if (level === "MEDIUM") return "#f59e0b";
+                if (level === "LOW") return "#ef4444";
+                return "#999";
+            }
+
+            // =================================================================
+            // GEOSTATS TAB
+            // =================================================================
+
+            function updateGeostatsTab(
+                geostatAnalysis,
+                isFocusSummary = false,
+            ) {
+                const geostatsTab = document.getElementById("geostats-tab");
+                const title = isFocusSummary
+                    ? "<h2>Focus Summary</h2>"
+                    : "<h2>Geostats Analysis</h2>";
+                geostatsTab.innerHTML =
+                    '<div class="content-padding">' +
+                    title +
+                    marked.parse(geostatAnalysis) +
+                    "</div>";
+                clearOutdatedState("geostats-tab");
+            }
+
+            function updateGeostatsTabWithExport(geostatSummary) {
+                const geostatsTab = document.getElementById("geostats-tab");
+                geostatsTab.innerHTML =
+                    '<button onclick="exportGeostats()" class="secondary export-btn">Export</button>' +
+                    '<div class="content-padding"><h2>Geostats Analysis</h2>' +
+                    marked.parse(geostatSummary) +
+                    "</div>";
+                clearOutdatedState("geostats-tab");
+            }
+
+            // =================================================================
+            // FOCUS FORM
+            // =================================================================
 
             function populateFocusForm(data) {
                 const focusContent = document.getElementById("focus-content");
-
-                //let html = "<h4>Focus Options</h4>";
                 let html = "";
 
                 // Focus history
                 if (data.focus_history && data.focus_history.length > 0) {
-                    html += "<h5>Focus History</h5><ul>";
+                    html +=
+                        '<h5 class="accordion-label">Focus History</h5><ul>';
                     data.focus_history.forEach((item) => {
                         const prompt = item.prompt || item.focus_prompt || item;
                         const desc = item.description || "";
@@ -913,7 +1997,8 @@
 
                 // Examples
                 if (data.focus_examples && data.focus_examples.length > 0) {
-                    html += "<h5>Optional Focus Prompts</h5><ul>";
+                    html +=
+                        '<h5 class="accordion-label">Optional Focus Prompts</h5><ul>';
                     data.focus_examples.forEach((example) => {
                         html += `<li>${example}</li>`;
                     });
@@ -923,12 +2008,12 @@
                 // Focus form
                 html += `
                     <label>
-                        <textarea id="focus-prompt" name="focus" rows="3" placeholder="filter prompt..."></textarea>
+                        <textarea id="focus-prompt" name="focus" rows="3" placeholder="focus prompt..."></textarea>
                     </label>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <button id="focus-btn" class="secondary" disabled onclick="submitFocus()">Apply Focus</button>
-                        <span style="color: #666; font-size: small;">or</span>
-                        <button id="continue-btn" onclick="submitContinue()">Continue to Report</button>
+
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <button id="focus-btn" class="secondary" style="flex: 1;" disabled onclick="submitFocus()">Apply Focus</button>
+                        <button id="next-btn" class="secondary" style="flex: 1;" onclick="showReportAccordion()">Next</button>
                     </div>
                 `;
 
@@ -938,149 +2023,33 @@
                 document
                     .getElementById("focus-prompt")
                     .addEventListener("input", function (e) {
-                        const focusBtn = document.getElementById("focus-btn");
-                        focusBtn.disabled = e.target.value.trim() === "";
+                        document.getElementById("focus-btn").disabled =
+                            e.target.value.trim() === "";
                     });
 
-                // Show FOCUS accordion, open it, and close INITIALIZE
-                const focusAccordion =
-                    document.getElementById("focus-accordion");
-                const initAccordion = document.getElementById("init-accordion");
-                focusAccordion.style.display = "";
-                focusAccordion.open = true;
-                initAccordion.open = false;
+                openAccordion("focus");
+                closeAccordion("init");
             }
 
-            function submitFocus() {
-                const focusPrompt = document
-                    .getElementById("focus-prompt")
-                    .value.trim();
-                if (!focusPrompt) return;
-
-                appendLog("Applying focus: " + focusPrompt);
-
-                // Mark GEOSTAT tab as outdated and add spinner
-                const geostatTab = document.getElementById("geostat-tab");
-                const geostatDiv = geostatTab.querySelector("div");
-                geostatDiv.classList.add("outdated");
-
-                // Add spinner to tabs container
-                const tabsContainer = document.querySelector(".tabs");
-                if (!tabsContainer.querySelector(".spinner")) {
-                    const spinner = document.createElement("div");
-                    spinner.className = "spinner";
-                    spinner.id = "tab-spinner";
-                    tabsContainer.appendChild(spinner);
-                }
-
-                const payload = {
-                    task_id: currentTaskId,
-                    action: "focus",
-                    focus_prompt: focusPrompt,
-                    async_mode: true,
-                };
-
-                // Reset polling state
-                lastLogCount = 0;
-
-                // POST focus
-                fetch(API_URL, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(payload),
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.task_id) {
-                            // Start polling again
-                            startPolling(data.task_id);
-                        } else {
-                            appendLog("Error: No task_id returned");
-                        }
-                    })
-                    .catch((error) => {
-                        appendLog("ERROR: " + error.message);
-                    });
-            }
-
-            function submitContinue() {
-                appendLog("Continuing to synthesis");
-
-                // Mark GEOSTAT tab as outdated and add spinner
-                const geostatTab = document.getElementById("geostat-tab");
-                const geostatDiv = geostatTab.querySelector("div");
-                geostatDiv.classList.add("outdated");
-
-                // Add spinner to tabs container
-                const tabsContainer = document.querySelector(".tabs");
-                if (!tabsContainer.querySelector(".spinner")) {
-                    const spinner = document.createElement("div");
-                    spinner.className = "spinner";
-                    spinner.id = "tab-spinner";
-                    tabsContainer.appendChild(spinner);
-                }
-
-                const payload = {
-                    task_id: currentTaskId,
-                    action: "continue",
-                    async_mode: true,
-                };
-
-                // Reset polling state
-                lastLogCount = 0;
-
-                // POST continue
-                fetch(API_URL, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(payload),
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.task_id) {
-                            // Start polling again
-                            startPolling(data.task_id);
-                        } else {
-                            appendLog("Error: No task_id returned");
-                        }
-                    })
-                    .catch((error) => {
-                        appendLog("ERROR: " + error.message);
-                    });
-            }
+            // =================================================================
+            // SYNTHESIS COMPLETE HANDLER
+            // =================================================================
 
             function handleSynthesisComplete(data) {
-                // Close FOCUS accordion, open ANALYZE accordion
-                document.getElementById("focus-accordion").open = false;
-                document.getElementById("analyze-accordion").open = true;
+                // Collapse all left panel accordions except ANALYZE
+                closeAccordion("init");
+                closeAccordion("focus");
+                closeAccordion("report");
+                openAccordion("analyze");
 
                 // Populate STATS accordion
                 const report = data.report || {};
                 const profileStats = report.sections?.profile_stats || {};
                 renderStatsPanel(profileStats);
 
-                // Expand STATS accordion when first populated
-                document.getElementById("profile-accordion").open = true;
-
-                // Update GEOSTAT tab with full geostat_summary
+                // Update GEOSTATS tab
                 const geostatSummary = report.sections?.geostat_summary || "";
-                const geostatTab = document.getElementById("geostat-tab");
-                geostatTab.innerHTML =
-                    '<button onclick="exportGeostat()" class="secondary export-btn">Export</button>' +
-                    '<div style="padding: 1rem;">' +
-                    "<h2>Geostat Analysis</h2>" +
-                    marked.parse(geostatSummary) +
-                    "</div>";
-
-                // Remove outdated class and spinner if they exist (new content arrived)
-                geostatTab.querySelector("div").classList.remove("outdated");
-                const tabsContainer2 = document.querySelector(".tabs");
-                const spinner2 = tabsContainer2.querySelector(".spinner");
-                if (spinner2) spinner2.remove();
+                updateGeostatsTabWithExport(geostatSummary);
 
                 // Update REPORT tab and switch to it
                 populateReportTab(data);
@@ -1091,7 +2060,27 @@
 
                 // Enable EXPLORE tab
                 enableExplore();
+
+                // Populate EXPORT section
+                populateExportSection();
+
+                // Auto-save/update session
+                const sessionId = getCurrentSessionId();
+                if (!sessionId) {
+                    // Create a new session automatically
+                    const session = captureCurrentSession(
+                        "Auto-saved " + new Date().toLocaleString(),
+                    );
+                    saveSession(session);
+                    renderSessionList();
+                } else {
+                    updateCurrentSession();
+                }
             }
+
+            // =================================================================
+            // REPORT TAB
+            // =================================================================
 
             function populateReportTab(data) {
                 const report = data.report || {};
@@ -1099,69 +2088,65 @@
 
                 let html =
                     '<button onclick="exportReport()" class="secondary export-btn">Export</button>';
-                html += '<div style="padding: 1rem;">';
+                html += '<div class="content-padding">';
                 html += "<h2>Analysis Report</h2>";
 
-                // Additional context
                 if (report.additional_context) {
                     html += "<h3>Additional Context</h3>";
-                    html += "<p>" + report.additional_context + "</p>";
+                    html +=
+                        "<p>" + escapeHtml(report.additional_context) + "</p>";
                 }
 
-                // Filters
                 if (report.filters && report.filters.length > 0) {
                     html += "<h3>Filters</h3><ul>";
                     report.filters.forEach((filter) => {
-                        html += "<li>" + filter + "</li>";
+                        html += "<li>" + escapeHtml(filter) + "</li>";
                     });
                     html += "</ul>";
                 }
 
-                // Main report markdown
                 if (report.markdown) {
                     html += marked.parse(report.markdown);
                 }
 
-                // Timing
-                if (report.timing) {
-                    html +=
-                        "<h3>Timing</h3><pre>" +
-                        JSON.stringify(report.timing, null, 2) +
-                        "</pre>";
-                }
-
-                // Tokens
-                if (report.tokens) {
-                    html +=
-                        "<h3>Tokens</h3><pre>" +
-                        JSON.stringify(report.tokens, null, 2) +
-                        "</pre>";
+                if (report.timing || report.tokens) {
+                    html += '<div class="report-meta">';
+                    if (report.timing) {
+                        html +=
+                            "<h3>Timing</h3><pre>" +
+                            JSON.stringify(report.timing, null, 2) +
+                            "</pre>";
+                    }
+                    if (report.tokens) {
+                        html +=
+                            "<h3>Tokens</h3><pre>" +
+                            JSON.stringify(report.tokens, null, 2) +
+                            "</pre>";
+                    }
+                    html += "</div>";
                 }
 
                 html += "</div>";
                 reportTab.innerHTML = html;
+                clearOutdatedState("report-tab");
 
-                // Remove outdated class and spinner if they exist (new content arrived)
-                const reportDiv = reportTab.querySelector("div");
-                if (reportDiv) {
-                    reportDiv.classList.remove("outdated");
-                }
-                const tabsContainer3 = document.querySelector(".tabs");
-                const spinner3 = tabsContainer3.querySelector(".spinner");
-                if (spinner3) spinner3.remove();
+                // Minimize logging accordion now that the report is ready
+                const loggingAccordion =
+                    document.getElementById("logging-accordion");
+                if (loggingAccordion) loggingAccordion.removeAttribute("open");
             }
 
+            // =================================================================
+            // ANALYZE FORM
+            // =================================================================
+
             function populateAnalyzeForm(data) {
-                const analyzeContent =
-                    document.getElementById("analyze-content");
-                const deepDiveOptions = data.deep_dive_options || [];
-                const recommendedTopics = data.recommended_topics || [];
-
-                // Store globally for later updates
-                currentDeepDiveOptions = deepDiveOptions;
-                currentRecommendedTopics = recommendedTopics;
-
-                renderAnalyzeAccordion(deepDiveOptions, recommendedTopics);
+                currentDeepDiveOptions = data.deep_dive_options || [];
+                currentRecommendedTopics = data.recommended_topics || [];
+                renderAnalyzeAccordion(
+                    currentDeepDiveOptions,
+                    currentRecommendedTopics,
+                );
             }
 
             function renderAnalyzeAccordion(
@@ -1171,95 +2156,69 @@
                 const analyzeContent =
                     document.getElementById("analyze-content");
 
-                let html = "<h5>Deep-Dive Topics</h5>";
+                let html = '<h5 class="accordion-label">Deep-Dive Topics</h5>';
+                html += '<p class="availability-legend">Data availability: ';
                 html +=
-                    '<p style="font-size: small;">Data availability: <span style="color: #22c55e; font-weight: bold;">●</span> &gt;80% &nbsp; <span style="color: #f59e0b; font-weight: bold;">●</span> 50-80% &nbsp; <span style="color: #ef4444; font-weight: bold;">●</span> 20-50%</p>';
+                    '<span class="availability-dot high">●</span> &gt;80% &nbsp; ';
+                html +=
+                    '<span class="availability-dot medium">●</span> 50-80% &nbsp; ';
+                html +=
+                    '<span class="availability-dot low">●</span> 20-50%</p>';
                 html += "<hr>";
 
-                if (deepDiveOptions.length > 0) {
-                    deepDiveOptions.forEach((option, index) => {
-                        const availability = (
-                            option.availability || ""
-                        ).toUpperCase();
-                        const name = option.name || option.key || "";
-                        const description = option.description || "";
+                // Deep-dive options
+                deepDiveOptions.forEach((option) => {
+                    html += renderTopicCheckbox(option, "deep-dive-option");
+                });
 
-                        // Map availability to color
-                        let color = "#999"; // default
-                        if (availability === "HIGH")
-                            color = "#22c55e"; // green
-                        else if (availability === "MEDIUM")
-                            color = "#f59e0b"; // orange
-                        else if (availability === "LOW") color = "#ef4444"; // red
+                // Recommended topics
+                html += '<h5 class="accordion-label">Recommended Topics</h5>';
+                recommendedTopics.forEach((topic) => {
+                    html += renderTopicCheckbox(topic, "recommended-topic");
+                });
 
-                        html += `
-                            <label style="display: block; margin-bottom: 0.5rem;">
-                                <input type="checkbox" class="deep-dive-option"
-                                    data-prompt="${option.prompt || ""}"
-                                    data-key="${option.key || option.section_key || ""}"
-                                    value="${name}">
-                                <span style="color: ${color}; font-weight: bold; font-size: 1.2em;">●</span> ${name}<br>
-                                <span style="margin-left: 2rem; font-size: small; color: #666;">${description}</span>
-                            </label>
-                        `;
-                    });
-                }
-
-                html += "<h5>Recommended Topics</h5>";
-                if (recommendedTopics.length > 0) {
-                    recommendedTopics.forEach((topic) => {
-                        const availability = (
-                            topic.availability || ""
-                        ).toUpperCase();
-                        const name = topic.name || topic.key || "";
-                        const description = topic.description || "";
-
-                        // Map availability to color (same as deep-dive)
-                        let color = "#999"; // default
-                        if (availability === "HIGH")
-                            color = "#22c55e"; // green
-                        else if (availability === "MEDIUM")
-                            color = "#f59e0b"; // orange
-                        else if (availability === "LOW") color = "#ef4444"; // red
-
-                        html += `
-                            <label style="display: block; margin-bottom: 0.5rem;">
-                                <input type="checkbox" class="recommended-topic"
-                                    data-prompt="${topic.prompt || ""}"
-                                    data-key="${topic.key || ""}"
-                                    value="${name}">
-                                <span style="color: ${color}; font-weight: bold; font-size: 1.2em;">●</span> ${name}<br>
-                                <span style="margin-left: 2rem; font-size: small; color: #666;">${description}</span>
-                            </label>
-                        `;
-                    });
-                }
-
+                // Custom topic
                 html += `
-                    <label>
-                        <h5>Custom Topic</h5>
+                    <label class="accordion-label">
+                        Custom Topic
                         <textarea id="custom-topic" rows="3" placeholder="Enter custom analysis topic..."></textarea>
                     </label>
-                    <button onclick="appendSections()">Append Sections</button>
+                    <button style="width: 100%;" onclick="appendSections()">Append Sections</button>
                 `;
 
                 analyzeContent.innerHTML = html;
 
-                // Show ANALYZE accordion, open it, and close INITIALIZE and FOCUS
-                const analyzeAccordion =
-                    document.getElementById("analyze-accordion");
-                const initAccordion = document.getElementById("init-accordion");
-                const focusAccordion =
-                    document.getElementById("focus-accordion");
-                analyzeAccordion.style.display = "";
-                analyzeAccordion.open = true;
-                initAccordion.open = false;
-                focusAccordion.open = false;
+                openAccordion("analyze");
+                closeAccordion("init");
+                closeAccordion("focus");
 
-                // Show REPORT and EXPLORE tabs in center panel
+                // Show REPORT and EXPLORE tabs
                 document.getElementById("report-tab-btn").style.display = "";
                 document.getElementById("explore-tab-btn").style.display = "";
             }
+
+            function renderTopicCheckbox(topic, className) {
+                const color = getAvailabilityColor(topic.availability);
+                const name = escapeHtml(topic.name || topic.key || "");
+                const description = escapeHtml(topic.description || "");
+                const prompt = escapeHtml(topic.prompt || "");
+                const key = escapeHtml(topic.key || topic.section_key || "");
+
+                return `
+                    <label class="topic-option">
+                        <input type="checkbox" class="${className}"
+                            data-prompt="${prompt}"
+                            data-key="${key}"
+                            value="${name}">
+                        <span class="availability-dot" style="color: ${color};">●</span> ${name}<br>
+                        <span class="topic-description">${description}</span>
+                    </label>
+                `;
+            }
+
+            // =================================================================
+            // APPEND SECTIONS (Follow-up Requests)
+            // =================================================================
 
             function appendSections() {
                 const deepDiveCheckboxes = document.querySelectorAll(
@@ -1272,7 +2231,7 @@
                     .getElementById("custom-topic")
                     .value.trim();
 
-                // Collect all items to submit
+                // Collect items to submit
                 const itemsToSubmit = [];
 
                 deepDiveCheckboxes.forEach((checkbox) => {
@@ -1311,52 +2270,34 @@
                     });
                 }
 
-                // Nothing to submit
                 if (itemsToSubmit.length === 0) {
                     appendLog("No items selected to append");
                     return;
                 }
 
-                // Mark REPORT tab as outdated and add spinner
-                const reportTab = document.getElementById("report-tab");
-                const reportDiv = reportTab.querySelector("div");
-                if (reportDiv) {
-                    reportDiv.classList.add("outdated");
+                // Record followup topics for session persistence
+                itemsToSubmit.forEach((item) => {
+                    recordFollowupTopic(item.label);
+                });
 
-                    // Add spinner to tabs container
-                    const tabsContainer = document.querySelector(".tabs");
-                    if (!tabsContainer.querySelector(".spinner")) {
-                        const spinner = document.createElement("div");
-                        spinner.className = "spinner";
-                        spinner.id = "tab-spinner";
-                        tabsContainer.appendChild(spinner);
-                    }
-                }
-
-                // Reset polling state
+                markReportOutdated();
                 lastLogCount = 0;
 
-                // Track pending requests
                 let pendingRequests = itemsToSubmit.length;
-
-                // Track completed responses for appending to report
                 const completedResponses = [];
 
-                // Submit all items
-                itemsToSubmit.forEach((item) => {
+                // Submit all items (track submission order for deterministic append)
+                itemsToSubmit.forEach((item, index) => {
                     appendLog("Submitting: " + item.label);
                     console.log("[POST]", API_URL, item.payload);
 
                     fetch(API_URL, {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(item.payload),
                     })
                         .then((response) => response.json())
                         .then((data) => {
-                            // Follow-up responses are synchronous - they return immediately with content
                             if (
                                 data.is_followup &&
                                 data.Analysis &&
@@ -1371,14 +2312,16 @@
                                         timing.toFixed(1) +
                                         "s)",
                                 );
+                                const content =
+                                    data.Analysis.response_display ||
+                                    data.Analysis.response ||
+                                    "";
                                 completedResponses.push({
+                                    order: index,
                                     label: item.label,
-                                    content:
-                                        data.Analysis.response_display ||
-                                        data.Analysis.response,
+                                    content: content,
                                 });
 
-                                // Update deep-dive and recommended options if provided
                                 if (data.deep_dive_options) {
                                     currentDeepDiveOptions =
                                         data.deep_dive_options;
@@ -1397,9 +2340,7 @@
                             }
                             pendingRequests--;
 
-                            // When all requests are done, update the UI
                             if (pendingRequests === 0) {
-                                appendLog("All sections completed");
                                 finishFollowupRequests(completedResponses);
                             }
                         })
@@ -1417,28 +2358,41 @@
             }
 
             function finishFollowupRequests(completedResponses) {
-                // Remove spinner
-                const spinner = document.getElementById("tab-spinner");
-                if (spinner) spinner.remove();
+                removeTabSpinner();
 
-                // Remove outdated styling from report
                 const reportTab = document.getElementById("report-tab");
                 const reportDiv = reportTab.querySelector("div");
                 if (reportDiv) {
                     reportDiv.classList.remove("outdated");
                 }
+                enableExportButtons();
 
-                // Append completed sections to the report
-                if (completedResponses.length > 0) {
-                    let reportContent = reportDiv ? reportDiv.innerHTML : "";
+                // Append completed sections to the report in submission order
+                if (completedResponses.length > 0 && reportDiv) {
+                    // Sort by submission order (parallel responses arrive non-deterministically)
+                    completedResponses.sort((a, b) => a.order - b.order);
+
+                    // Move timing/tokens block to end so appended sections don't appear after it
+                    const timingBlock = reportDiv.querySelector(".report-meta");
+                    if (timingBlock) timingBlock.remove();
 
                     completedResponses.forEach((resp) => {
-                        // Add section header and content
-                        reportContent += `\n\n<h2>${resp.label}</h2>\n${marked.parse(resp.content)}`;
+                        if (!resp.content) return; // R2: skip empty responses
+                        const section = document.createElement("div");
+                        section.innerHTML = `<h2>${escapeHtml(resp.label)}</h2>\n${marked.parse(resp.content)}`;
+                        reportDiv.appendChild(section);
                     });
 
-                    if (reportDiv) {
-                        reportDiv.innerHTML = reportContent;
+                    // Re-append timing/tokens at the end
+                    if (timingBlock) reportDiv.appendChild(timingBlock);
+
+                    // Ensure export button exists
+                    if (!reportTab.querySelector(".export-btn")) {
+                        const exportBtn = document.createElement("button");
+                        exportBtn.className = "secondary export-btn";
+                        exportBtn.onclick = exportReport;
+                        exportBtn.textContent = "Export";
+                        reportTab.insertBefore(exportBtn, reportDiv);
                     }
 
                     appendLog(
@@ -1448,7 +2402,7 @@
                     );
                 }
 
-                // Refresh the ANALYZE accordion with updated options
+                // Refresh ANALYZE accordion
                 if (currentDeepDiveOptions || currentRecommendedTopics) {
                     renderAnalyzeAccordion(
                         currentDeepDiveOptions || [],
@@ -1457,11 +2411,11 @@
                 }
             }
 
-            function enableExplore() {
-                // Enable the send button
-                document.getElementById("explore-send").disabled = false;
+            // =================================================================
+            // EXPLORE TAB
+            // =================================================================
 
-                // Enable Enter key to send (only add listener once)
+            function enableExplore() {
                 const input = document.getElementById("explore-input");
                 if (!input.dataset.listenerAdded) {
                     input.addEventListener("keydown", function (e) {
@@ -1480,19 +2434,15 @@
 
                 if (!question || !currentTaskId) return;
 
-                // Add user message to chat
                 addExploreMessage("user", question);
-
-                // Clear input
                 input.value = "";
 
-                // Replace Send button with spinner
-                const sendBtn = document.getElementById("explore-send");
-                const originalText = sendBtn.textContent;
-                sendBtn.innerHTML = '<div class="spinner"></div>';
-                sendBtn.disabled = true;
+                // Show spinner and disable input
+                const sendContainer = document.getElementById("explore-send");
+                sendContainer.innerHTML =
+                    '<div class="spinner spinner-small"></div>';
+                input.disabled = true;
 
-                // Send query
                 fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -1505,19 +2455,16 @@
                 })
                     .then((response) => response.json())
                     .then((data) => {
-                        // Restore button
-                        sendBtn.innerHTML = originalText;
-                        sendBtn.disabled = false;
+                        sendContainer.innerHTML = "";
+                        input.disabled = false;
+                        input.focus();
 
                         const answer =
                             data.answer ||
                             data.data?.answer ||
                             "No response received.";
-
-                        // Add assistant response
                         addExploreMessage("assistant", answer);
 
-                        // Update history
                         exploreHistory.push({
                             role: "user",
                             content: question,
@@ -1527,16 +2474,19 @@
                             content: answer,
                         });
 
-                        // Log the interaction
+                        // Show Export button now that we have history
+                        showExploreExportButton();
+
+                        // Update session with explore history
+                        updateCurrentSession();
+
                         appendLog(
                             `Query sent: ${question.substring(0, 50)}${question.length > 50 ? "..." : ""}`,
                         );
                     })
                     .catch((error) => {
-                        // Restore button
-                        sendBtn.innerHTML = originalText;
-                        sendBtn.disabled = false;
-
+                        sendContainer.innerHTML = "";
+                        input.disabled = false;
                         addExploreMessage(
                             "assistant",
                             `Error: ${error.message}`,
@@ -1545,33 +2495,36 @@
                     });
             }
 
-            let messageIdCounter = 0;
             function addExploreMessage(role, content, isTemporary = false) {
                 const messagesDiv = document.getElementById("explore-messages");
                 const messageId = `msg-${messageIdCounter++}`;
 
                 const messageDiv = document.createElement("div");
                 messageDiv.id = messageId;
-                messageDiv.style.marginBottom = "1rem";
-                messageDiv.style.padding = "0.75rem";
-                messageDiv.style.borderRadius = "0.5rem";
+                messageDiv.className = `explore-message ${role}${isTemporary ? " temporary" : ""}`;
 
-                if (role === "user") {
-                    messageDiv.style.background = "#e3f2fd";
-                    messageDiv.style.marginLeft = "2rem";
-                    messageDiv.innerHTML = `<div style="font-weight: bold; margin-bottom: 0.25rem; color: #1976d2;">You:</div><div>${escapeHtml(content)}</div>`;
-                } else {
-                    messageDiv.style.background = isTemporary
-                        ? "#fff3cd"
-                        : "#f5f5f5";
-                    messageDiv.style.marginRight = "2rem";
-                    messageDiv.innerHTML = `<div style="font-weight: bold; margin-bottom: 0.25rem; color: #555;">Assistant:</div><div>${marked.parse(content)}</div>`;
-                }
+                const headerText = role === "user" ? "You:" : "Assistant:";
+                const contentHtml =
+                    role === "user"
+                        ? escapeHtml(content)
+                        : marked.parse(content);
+
+                messageDiv.innerHTML = `
+                    <div class="explore-message-header">${headerText}</div>
+                    <div>${contentHtml}</div>
+                `;
 
                 messagesDiv.appendChild(messageDiv);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
                 return messageId;
+            }
+
+            function showExploreExportButton() {
+                const exportBtn = document.getElementById("explore-export-btn");
+                if (exportBtn) {
+                    exportBtn.style.display = "";
+                }
             }
 
             function removeExploreMessage(messageId) {
@@ -1581,29 +2534,32 @@
                 }
             }
 
-            // Store raw stats for toggle
-            let rawProfileStats = {};
+            // =================================================================
+            // STATS PANEL
+            // =================================================================
 
             function renderStatsPanel(stats) {
                 rawProfileStats = stats;
                 const container = document.getElementById("stats-content");
+                const accordion = document.getElementById("profile-accordion");
 
                 if (!stats || Object.keys(stats).length === 0) {
                     container.innerHTML =
-                        '<p style="color: #666; font-size: small;">No stats available.</p>';
+                        '<p class="text-muted">No stats available.</p>';
+                    accordion.style.display = "none";
                     return;
                 }
+
+                accordion.style.display = "block";
+                accordion.open = true;
 
                 const summary = stats.summary || {};
                 const production = stats.production || {};
                 const operators = stats.operators || {};
                 const depth = stats.depth || {};
-                const descriptions = stats.category_descriptions || {};
+                const vintage = stats.vintage || {};
 
-                let html = "";
-
-                // Header with toggle buttons
-                html += `
+                let html = `
                     <div class="stats-header">
                         <h4>Profile Data</h4>
                         <div class="stats-toggle">
@@ -1629,8 +2585,8 @@
                     summary.vertical_wells ||
                     summary.deviated_wells
                 ) {
-                    html += '<div class="stats-section"><h5>Well Types</h5>';
-                    html += '<div class="well-types">';
+                    html +=
+                        '<div class="stats-section"><h5>Well Types</h5><div class="well-types">';
                     if (summary.horizontal_wells)
                         html += `<span class="well-type-badge horizontal"><span class="count">${summary.horizontal_wells}</span> Horizontal</span>`;
                     if (summary.vertical_wells)
@@ -1640,15 +2596,20 @@
                     html += "</div></div>";
                 }
 
-                // Date range
+                // Date range & vintage sparkline
                 if (summary.earliest_spud || summary.latest_spud) {
-                    html += '<div class="stats-section"><h5>Date Range</h5>';
-                    html += '<div class="date-range">';
+                    html +=
+                        '<div class="stats-section"><h5>Date Range</h5><div class="date-range">';
                     if (summary.earliest_spud)
                         html += `<span>Earliest: ${summary.earliest_spud}</span>`;
                     if (summary.latest_spud)
                         html += `<span>Latest: ${summary.latest_spud}</span>`;
-                    html += "</div></div>";
+                    html += "</div>";
+
+                    if (vintage.by_year && vintage.by_year.length > 0) {
+                        html += renderVintageSparkline(vintage.by_year);
+                    }
+                    html += "</div>";
                 }
 
                 // Production P10/P50/P90
@@ -1661,10 +2622,14 @@
                         production.boe.p90,
                         "production",
                     );
+                    html += renderProductionQualityBar(
+                        production.boe.p50,
+                        production.boe.p90,
+                    );
                     html += "</div>";
                 }
 
-                // Depth/Lateral length
+                // Lateral length
                 if (depth.lateral_length) {
                     html +=
                         '<div class="stats-section"><h5>Lateral Length (m)</h5>';
@@ -1682,34 +2647,135 @@
                     operators.top_operators &&
                     operators.top_operators.length > 0
                 ) {
-                    const maxWells = Math.max(
-                        ...operators.top_operators.map(
-                            (o) => o.well_count || 0,
-                        ),
-                    );
-                    html += '<div class="stats-section"><h5>Top Operators</h5>';
-                    html +=
-                        '<table class="stats-table"><thead><tr><th>Operator</th><th>Wells</th><th class="bar-cell"></th></tr></thead><tbody>';
-                    operators.top_operators.slice(0, 5).forEach((op) => {
-                        const pct =
-                            maxWells > 0
-                                ? ((op.well_count || 0) / maxWells) * 100
-                                : 0;
-                        html += `<tr>
-                            <td>${escapeHtml(op.name || op.operator || "Unknown")}</td>
-                            <td>${op.well_count || 0}</td>
-                            <td class="bar-cell"><div class="mini-bar" style="width: ${pct}%"></div></td>
-                        </tr>`;
-                    });
-                    html += "</tbody></table></div>";
+                    html += renderTopOperators(operators);
                 }
 
                 html += "</div>"; // end stats-visual-view
 
-                // Raw JSON view (hidden by default)
+                // Raw JSON view
                 html += `<div id="stats-raw-view" style="display: none;"><pre class="stats-raw">${escapeHtml(JSON.stringify(stats, null, 2))}</pre></div>`;
 
                 container.innerHTML = html;
+            }
+
+            function renderRangeBar(p10, p50, p90, type = "") {
+                if (p10 == null || p90 == null) return "";
+
+                const range = p90 - p10;
+                const p50Pct = range > 0 ? ((p50 - p10) / range) * 100 : 50;
+
+                return `
+                    <div class="range-bar ${type}">
+                        <div class="range-fill" style="left: 0; width: 100%;"></div>
+                        <div class="p50-marker" style="left: ${p50Pct}%;">
+                            <span class="p50-label">P50: ${formatNumber(p50)}</span>
+                        </div>
+                        <div class="range-labels">
+                            <span>P10: ${formatNumber(p10)}</span>
+                            <span>P90: ${formatNumber(p90)}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function renderProductionQualityBar(p50, p90) {
+                if (!p50 || !p90 || p50 <= 0) return "";
+
+                const ratio = p90 / p50;
+                let qualityClass = "tight";
+                let qualityText = "Tight spread";
+                let fillWidth = 30;
+
+                if (ratio > 3) {
+                    qualityClass = "wide";
+                    qualityText = "Wide spread";
+                    fillWidth = 90;
+                } else if (ratio > 2) {
+                    qualityClass = "moderate";
+                    qualityText = "Moderate spread";
+                    fillWidth = 60;
+                }
+
+                const tooltip =
+                    "P90/P50 ratio shows well performance variance. Ratio close to 1 = tight, predictable play. Ratio > 3 = high variance, risky.";
+                return `
+                    <div class="quality-bar ${qualityClass}" title="${tooltip}">
+                        <div class="quality-fill" style="width: ${fillWidth}%"></div>
+                        <span class="quality-label">${qualityText} (${ratio.toFixed(1)}x)</span>
+                    </div>
+                `;
+            }
+
+            function renderVintageSparkline(yearData) {
+                const maxCount = Math.max(
+                    ...yearData.map((y) => y.well_count || 0),
+                );
+                const yearRange = `${yearData[0].year}-${yearData[yearData.length - 1].year}`;
+
+                let html = '<div class="vintage-sparkline">';
+                yearData.forEach((y) => {
+                    const height =
+                        maxCount > 0
+                            ? ((y.well_count || 0) / maxCount) * 100
+                            : 0;
+                    html += `<div class="vintage-bar" style="height: ${height}%" title="${y.year}: ${y.well_count} wells"></div>`;
+                });
+                html += "</div>";
+                html += `<div class="vintage-label">Activity trend (${yearRange})</div>`;
+                return html;
+            }
+
+            function renderTopOperators(operators) {
+                const topOps = operators.top_operators;
+                const maxWells = Math.max(
+                    ...topOps.map((o) => o.well_count || 0),
+                );
+
+                let html = '<div class="stats-section"><h5>Top Operators</h5>';
+                html +=
+                    '<table class="stats-table"><thead><tr><th>Operator</th><th>Wells</th><th class="bar-cell"></th></tr></thead><tbody>';
+
+                topOps.slice(0, 5).forEach((op) => {
+                    const pct =
+                        maxWells > 0
+                            ? ((op.well_count || 0) / maxWells) * 100
+                            : 0;
+                    html += `<tr>
+                        <td>${escapeHtml(op.name || op.operator || "Unknown")}</td>
+                        <td>${op.well_count || 0}</td>
+                        <td class="bar-cell"><div class="mini-bar" style="width: ${pct}%"></div></td>
+                    </tr>`;
+                });
+
+                html += "</tbody></table>";
+
+                // HHI Concentration
+                const hhi = operators.hhi;
+                const hhiInterp = operators.hhi_interpretation;
+                if (hhi != null) {
+                    html += renderHHIDots(hhi, hhiInterp);
+                }
+
+                html += "</div>";
+                return html;
+            }
+
+            function renderHHIDots(hhi, hhiInterp) {
+                let filledDots = 1;
+                if (hhi > 0.25) filledDots = 5;
+                else if (hhi > 0.2) filledDots = 4;
+                else if (hhi > 0.15) filledDots = 3;
+                else if (hhi > 0.1) filledDots = 2;
+
+                const tooltip =
+                    "Herfindahl-Hirschman Index (HHI) measures market concentration. 0-0.15 = Competitive, 0.15-0.25 = Moderately concentrated, >0.25 = Highly concentrated.";
+                let html = `<div class="hhi-dots" title="${tooltip}">`;
+                for (let i = 1; i <= 5; i++) {
+                    html += `<div class="hhi-dot ${i <= filledDots ? "filled" : ""}"></div>`;
+                }
+                html += `<span class="hhi-label">${hhiInterp || "Market concentration"} (HHI: ${hhi.toFixed(2)})</span>`;
+                html += "</div>";
+                return html;
             }
 
             function showStatsView(view) {
@@ -1732,51 +2798,48 @@
                 }
             }
 
-            function renderRangeBar(p10, p50, p90, type = "") {
-                if (p10 == null || p90 == null) return "";
+            // =================================================================
+            // EXPORT FUNCTIONS
+            // =================================================================
 
-                // Calculate positions as percentages
-                const range = p90 - p10;
-                const p50Pct = range > 0 ? ((p50 - p10) / range) * 100 : 50;
+            function exportToPdf(html, title) {
+                const btn = event && event.target;
+                if (btn) {
+                    btn.disabled = true;
+                    btn.textContent = "Exporting...";
+                }
 
-                return `
-                    <div class="range-bar ${type}">
-                        <div class="range-fill" style="left: 0; width: 100%;"></div>
-                        <div class="p50-marker" style="left: ${p50Pct}%;">
-                            <span class="p50-label">P50: ${formatNumber(p50)}</span>
-                        </div>
-                        <div class="range-labels">
-                            <span>P10: ${formatNumber(p10)}</span>
-                            <span>P90: ${formatNumber(p90)}</span>
-                        </div>
-                    </div>
-                `;
-            }
-
-            function formatNumber(num) {
-                if (num == null) return "-";
-                if (typeof num !== "number") return num;
-                if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
-                if (num >= 1000) return (num / 1000).toFixed(1) + "K";
-                return num.toLocaleString();
-            }
-
-            function escapeHtml(text) {
-                const div = document.createElement("div");
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            function downloadMarkdown(filename, content) {
-                const blob = new Blob([content], { type: "text/markdown" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+                fetch("/api/export-pdf", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ html, title }),
+                })
+                    .then((response) => {
+                        if (!response.ok)
+                            throw new Error("PDF generation failed");
+                        return response.blob();
+                    })
+                    .then((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `${title}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        appendLog(`Exported ${title} to PDF`);
+                    })
+                    .catch((error) => {
+                        appendLog(`ERROR exporting ${title}: ${error.message}`);
+                        alert("PDF export failed. Please try again.");
+                    })
+                    .finally(() => {
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.textContent = "Export";
+                        }
+                    });
             }
 
             function exportExploreHistory() {
@@ -1784,25 +2847,9 @@
                     alert("No conversation to export.");
                     return;
                 }
-
-                const timestamp = new Date()
-                    .toISOString()
-                    .slice(0, 19)
-                    .replace(/[T:]/g, "-");
-                let markdown = `# Explore Session\n\nExported: ${new Date().toLocaleString()}\n\n---\n\n`;
-
-                for (let i = 0; i < exploreHistory.length; i += 2) {
-                    const userMsg = exploreHistory[i];
-                    const assistantMsg = exploreHistory[i + 1];
-
-                    markdown += `## Q: ${userMsg.content}\n\n`;
-                    if (assistantMsg) {
-                        markdown += `${assistantMsg.content}\n\n---\n\n`;
-                    }
-                }
-
-                downloadMarkdown(`explore-${timestamp}.md`, markdown);
-                appendLog("Exported explore history to markdown");
+                const messagesDiv = document.getElementById("explore-messages");
+                if (!messagesDiv) return;
+                exportToPdf(messagesDiv.innerHTML, "explore");
             }
 
             function exportReport() {
@@ -1812,81 +2859,143 @@
                     alert("No report to export.");
                     return;
                 }
-
-                const timestamp = new Date()
-                    .toISOString()
-                    .slice(0, 19)
-                    .replace(/[T:]/g, "-");
-
-                // Get the raw markdown from the report sections if available
-                // For now, extract text content and structure it
-                let markdown = `# Analysis Report\n\nExported: ${new Date().toLocaleString()}\n\n---\n\n`;
-
-                // Walk through the report HTML and extract content
-                const headers = reportDiv.querySelectorAll("h1, h2, h3, h4");
-                if (headers.length > 0) {
-                    headers.forEach((header) => {
-                        const level = parseInt(header.tagName[1]);
-                        const prefix = "#".repeat(level);
-                        markdown += `${prefix} ${header.textContent}\n\n`;
-
-                        // Get content until next header
-                        let sibling = header.nextElementSibling;
-                        while (sibling && !sibling.matches("h1, h2, h3, h4")) {
-                            if (sibling.textContent.trim()) {
-                                markdown += `${sibling.textContent.trim()}\n\n`;
-                            }
-                            sibling = sibling.nextElementSibling;
-                        }
-                    });
-                } else {
-                    markdown += reportDiv.textContent;
-                }
-
-                downloadMarkdown(`report-${timestamp}.md`, markdown);
-                appendLog("Exported report to markdown");
+                exportToPdf(reportDiv.innerHTML, "report");
             }
 
-            function exportGeostat() {
-                const geostatTab = document.getElementById("geostat-tab");
-                const geostatDiv = geostatTab.querySelector("div");
-                if (!geostatDiv || !geostatDiv.textContent.trim()) {
-                    alert("No geostat analysis to export.");
+            function exportGeostats() {
+                const geostatsTab = document.getElementById("geostats-tab");
+                const geostatsDiv = geostatsTab.querySelector("div");
+                if (!geostatsDiv || !geostatsDiv.textContent.trim()) {
+                    alert("No geostats analysis to export.");
                     return;
                 }
-
-                const timestamp = new Date()
-                    .toISOString()
-                    .slice(0, 19)
-                    .replace(/[T:]/g, "-");
-
-                let markdown = `# Geostat Analysis\n\nExported: ${new Date().toLocaleString()}\n\n---\n\n`;
-
-                // Walk through the geostat HTML and extract content
-                const headers = geostatDiv.querySelectorAll("h1, h2, h3, h4");
-                if (headers.length > 0) {
-                    headers.forEach((header) => {
-                        const level = parseInt(header.tagName[1]);
-                        const prefix = "#".repeat(level);
-                        markdown += `${prefix} ${header.textContent}\n\n`;
-
-                        // Get content until next header
-                        let sibling = header.nextElementSibling;
-                        while (sibling && !sibling.matches("h1, h2, h3, h4")) {
-                            if (sibling.textContent.trim()) {
-                                markdown += `${sibling.textContent.trim()}\n\n`;
-                            }
-                            sibling = sibling.nextElementSibling;
-                        }
-                    });
-                } else {
-                    markdown += geostatDiv.textContent;
-                }
-
-                downloadMarkdown(`geostat-${timestamp}.md`, markdown);
-                appendLog("Exported geostat to markdown");
+                exportToPdf(geostatsDiv.innerHTML, "geostats");
             }
 
+            // =================================================================
+            // EXCEL EXPORT
+            // =================================================================
+
+            function populateExportSection() {
+                const section = document.getElementById("export-section");
+                const status = document.getElementById("export-status");
+
+                // Reset state
+                status.innerHTML = "";
+                section.style.display = "";
+            }
+
+            function startExcelExport() {
+                const btn = document.getElementById("export-excel-btn");
+                const status = document.getElementById("export-status");
+                const exportKey = "wells_only";
+
+                if (!currentTaskId) return;
+
+                // Disable button and show spinner
+                btn.disabled = true;
+                btn.innerHTML =
+                    '<span class="spinner spinner-small" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></span>Generating...';
+                status.innerHTML = "Starting export...";
+                appendLog("Starting Excel export: " + exportKey);
+
+                // Initiate export
+                fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        task_id: currentTaskId,
+                        action: "export",
+                        export_key: exportKey,
+                    }),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        const exportId = data.export_id;
+                        if (!exportId) {
+                            throw new Error(
+                                data.error || "No export_id returned",
+                            );
+                        }
+                        appendLog("Export started: " + exportId);
+                        status.innerHTML = "Generating Excel file...";
+                        pollExportStatus(exportId);
+                    })
+                    .catch((error) => {
+                        appendLog("Export error: " + error.message);
+                        status.innerHTML = "Error: " + error.message;
+                        resetExportControls();
+                    });
+            }
+
+            function pollExportStatus(exportId) {
+                const status = document.getElementById("export-status");
+                const statusUrl = `${API_URL}/export_status/${exportId}`;
+
+                const poll = setInterval(() => {
+                    fetch(statusUrl)
+                        .then((response) => response.json())
+                        .then((response) => {
+                            const data = response.data || response;
+                            const exportStatus = data.status;
+
+                            if (exportStatus === "completed") {
+                                clearInterval(poll);
+                                const result = data.result || {};
+                                const url = result.presigned_url;
+                                const filename =
+                                    result.filename || "export.xlsx";
+                                const wellCount = result.well_count || 0;
+
+                                appendLog(
+                                    `Export complete: ${wellCount} wells`,
+                                );
+                                status.innerHTML = `<a href="${url}" target="_blank" style="font-weight: bold;">Download ${filename}</a> (${wellCount} wells)`;
+                                resetExportControls();
+
+                                // Auto-download
+                                window.open(url, "_blank");
+                            } else if (exportStatus === "error") {
+                                clearInterval(poll);
+                                const errorMsg = data.error || "Export failed";
+                                appendLog("Export error: " + errorMsg);
+                                status.innerHTML = "Error: " + errorMsg;
+                                resetExportControls();
+                            } else {
+                                // Still running
+                                status.innerHTML = `Generating Excel file... (${exportStatus})`;
+                            }
+                        })
+                        .catch((error) => {
+                            clearInterval(poll);
+                            appendLog("Export poll error: " + error.message);
+                            status.innerHTML =
+                                "Error checking status: " + error.message;
+                            resetExportControls();
+                        });
+                }, 2000);
+            }
+
+            function resetExportControls() {
+                const btn = document.getElementById("export-excel-btn");
+                btn.innerHTML = "Download Wells to Excel";
+                btn.disabled = false;
+            }
+
+            // =================================================================
+            // PAGE INITIALIZATION
+            // =================================================================
+
+            // Initialize session list on page load
+            document.addEventListener("DOMContentLoaded", function () {
+                renderSessionList();
+            });
+
+            // =================================================================
+            // UNUSED CODE (commented out for potential future use)
+            // =================================================================
+
+            /*
             function startFollowupPolling() {
                 // Poll for status until completed or awaiting_selection
                 const pollInterval = setInterval(() => {
@@ -1899,16 +3008,10 @@
 
                             // Display new log entries
                             if (logs.length > lastLogCount) {
-                                for (
-                                    let i = lastLogCount;
-                                    i < logs.length;
-                                    i++
-                                ) {
+                                for (let i = lastLogCount; i < logs.length; i++) {
                                     const log = logs[i];
                                     const timestamp = log.timestamp
-                                        ? new Date(
-                                              log.timestamp,
-                                          ).toLocaleTimeString()
+                                        ? new Date(log.timestamp).toLocaleTimeString()
                                         : "";
                                     appendLog(log.message, timestamp);
                                 }
@@ -1916,15 +3019,9 @@
                             }
 
                             // Check for completion
-                            if (
-                                status === "completed" ||
-                                status === "awaiting_selection"
-                            ) {
+                            if (status === "completed" || status === "awaiting_selection") {
                                 clearInterval(pollInterval);
-                                appendLog(
-                                    "Followup analysis complete - status: " +
-                                        status,
-                                );
+                                appendLog("Followup analysis complete - status: " + status);
                                 console.log("Final status object:", data);
 
                                 // Update REPORT tab with new content
@@ -1933,40 +3030,19 @@
                                 }
 
                                 // Remove spinner and outdated state
-                                const reportTab =
-                                    document.getElementById("report-tab");
-                                const reportDiv =
-                                    reportTab.querySelector("div");
-                                if (reportDiv) {
-                                    reportDiv.classList.remove("outdated");
-                                }
-                                const tabsContainer =
-                                    document.querySelector(".tabs");
-                                const spinner =
-                                    tabsContainer.querySelector(".spinner");
-                                if (spinner) spinner.remove();
-                            } else if (
-                                status === "error" ||
-                                status === "failed"
-                            ) {
+                                clearOutdatedState("report-tab");
+                            } else if (status === "error" || status === "failed") {
                                 clearInterval(pollInterval);
-                                appendLog(
-                                    "ERROR: " + (data.error || "Unknown error"),
-                                );
-
-                                // Remove spinner
-                                const tabsContainer =
-                                    document.querySelector(".tabs");
-                                const spinner =
-                                    tabsContainer.querySelector(".spinner");
-                                if (spinner) spinner.remove();
+                                appendLog("ERROR: " + (data.error || "Unknown error"));
+                                removeTabSpinner();
                             }
                         })
                         .catch((error) => {
                             appendLog("Polling error: " + error.message);
                         });
-                }, 2000); // Poll every 2 seconds
+                }, 2000);
             }
+            */
         </script>
     </body>
 </html>
